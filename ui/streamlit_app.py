@@ -21,7 +21,7 @@ DEMO_USERS = {"viewer": "Viewer: search and read", "analyst": "Analyst: + data t
 
 st.set_page_config(page_title="Bank Knowledge Assistant", page_icon="🏦", layout="wide")
 st.markdown("""<style>
-.block-container {padding-top: 1.5rem;}
+.block-container {padding-top: 3.2rem;}
 .activity {font-size: 0.85rem; line-height: 1.5;}
 .activity p {margin: 0 0 0.35rem 0;}
 </style>""", unsafe_allow_html=True)
@@ -121,9 +121,9 @@ def render_activity(container, lines: list[str]) -> None:
                        unsafe_allow_html=True)
 
 
-def stream(path: str, payload: dict, answer_box, activity_box) -> dict | None:
+def stream(path: str, payload: dict, answer_box, activity_box, keep_activity: bool = False) -> dict | None:
     tokens: list[str] = []
-    lines: list[str] = []
+    lines: list[str] = list(ss.activity) if keep_activity else []
     final = None
     try:
         with httpx.stream("POST", f"{API_URL}{path}", json=payload, headers=headers(), timeout=None) as r:
@@ -223,7 +223,8 @@ with chat_col:
                 if decision is not None:
                     ss.pending = None
                     box = st.empty()
-                    final = stream("/chat/resume", {"thread_id": ss.thread_id, "approved": decision}, box, activity_box)
+                    final = stream("/chat/resume", {"thread_id": ss.thread_id, "approved": decision}, box, activity_box,
+                                   keep_activity=True)
                     if final and final.get("status") == "complete":
                         ss.messages.append({"role": "assistant", "content": final["answer"], "final": final})
                     st.rerun()

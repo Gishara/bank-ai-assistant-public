@@ -104,7 +104,7 @@ async def unhandled_handler(_: Request, exc: Exception):
 # auth
 # ---------------------------------------------------------------------------
 
-def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer)) -> User:
+async def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer)) -> User:
     if creds is None:
         raise HTTPException(401, "Missing bearer token", headers={"WWW-Authenticate": "Bearer"})
     try:
@@ -115,14 +115,14 @@ def current_user(creds: HTTPAuthorizationCredentials | None = Depends(bearer)) -
     return user
 
 
-def require_admin(user: User = Depends(current_user)) -> User:
+async def require_admin(user: User = Depends(current_user)) -> User:
     if user.role != Role.ADMINISTRATOR:
         audit.record(user.user_id, user.role.value, "admin_endpoint", "denied")
         raise HTTPException(403, "Administrator role required")
     return user
 
 
-def rate_limited(user: User = Depends(current_user)) -> User:
+async def rate_limited(user: User = Depends(current_user)) -> User:
     ok, retry_after = limiter.check(user.user_id, user.role)
     if not ok:
         raise HTTPException(429, f"Too many requests. Try again in {retry_after:.0f}s.",

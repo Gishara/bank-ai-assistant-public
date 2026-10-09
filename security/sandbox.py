@@ -8,8 +8,10 @@ Used by the research agent (search plans) and the analyst-only
      rejected before anything runs.
   2. Restricted globals: only a small set of safe builtins plus the
      data and helpers for that sandbox kind.
-  3. Separate process: code runs in a spawned child with CPU-time and memory
-     limits and a wall-clock timeout, so a runaway plan cannot block the API.
+  3. Separate process: code runs in a fresh interpreter
+     (`python -E -s -m security.sandbox_runner`) with an empty environment
+     (no API keys), CPU-time and memory limits, and a wall-clock timeout,
+     so a runaway plan cannot block or crash the API.
 
 This is adequate for a POC. Production would add an OS-level sandbox
 (gVisor, Firecracker or a managed code-execution service) and network
@@ -20,11 +22,12 @@ from __future__ import annotations
 
 import ast
 import asyncio
-import io
 import json
-import multiprocessing as mp
+import os
+import sys
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 MAX_CODE_CHARS = 4000
@@ -98,63 +101,54 @@ def _json_safe(value: Any) -> Any:
     return json.loads(text)
 
 
-def _child(conn, code: str, kind: str, data: dict, mem_mb: int, cpu_s: int) -> None:
-    try:
-        import resource
-
-        resource.setrlimit(resource.RLIMIT_AS, (mem_mb * 1024 * 1024, mem_mb * 1024 * 1024))
-        resource.setrlimit(resource.RLIMIT_CPU, (cpu_s, cpu_s + 1))
-    except Exception:  # not available on every platform; the wall-clock timeout still applies
-        pass
-    out = io.StringIO()
-    try:
-        from security import sandbox_env
-
-        env, state = sandbox_env.build(kind, data)
-
-        def _print(*args, **_kw):
-            out.write(" ".join(str(a) for a in args) + "\n")
-            if out.tell() > MAX_OUTPUT_CHARS:
-                raise RuntimeError("output limit exceeded")
-
-        builtins = dict(SAFE_BUILTINS, print=_print)
-        scope = {"__builtins__": builtins, **env}
-        exec(compile(code, "<plan>", "exec"), scope)  # noqa: S102 - validated, restricted, isolated
-        conn.send({"ok": True, "result": _json_safe(scope.get("result")), "stdout": out.getvalue()[:MAX_OUTPUT_CHARS],
-                   "emitted": state.get("emitted")})
-    except BaseException as exc:  # report everything, including limits hit
-        conn.send({"ok": False, "error": f"{type(exc).__name__}: {exc}", "stdout": out.getvalue()[:MAX_OUTPUT_CHARS]})
-    finally:
-        conn.close()
+ROOT = Path(__file__).resolve().parent.parent
 
 
-def _run_blocking(code: str, kind: str, data: dict, timeout_s: float, mem_mb: int) -> SandboxResult:
+def _child_env() -> dict[str, str]:
+    """Env for the sandboxed child: no API keys or other secrets, but not
+    literally empty -- on Windows, importing `asyncio` (done by this module,
+    and by the child before it ever runs user code) pulls in `socket`, whose
+    WSAStartup call fails with WinError 10106 ("requested service provider
+    could not be loaded or initialized") if SystemRoot isn't set, since
+    Winsock can't locate its provider catalog. SystemRoot/windir carry no
+    secret, just the Windows install path, so it's safe to pass through.
+    """
+    env = {"PYTHONDONTWRITEBYTECODE": "1"}
+    if sys.platform == "win32":
+        for var in ("SystemRoot", "SystemDrive", "windir"):
+            if var in os.environ:
+                env[var] = os.environ[var]
+    return env
+
+
+async def run(code: str, kind: str, data: dict, timeout_s: float = 10.0, mem_mb: int = 512) -> SandboxResult:
+    """Validate, then execute in a fresh interpreter with no environment variables."""
     started = time.monotonic()
     try:
         validate(code)
     except SandboxRejected as exc:
         return SandboxResult(ok=False, error=f"Rejected: {exc}", rejected=True)
-    ctx = mp.get_context("spawn")
-    parent, child = ctx.Pipe(duplex=False)
-    proc = ctx.Process(target=_child, args=(child, code, kind, data, mem_mb, max(1, int(timeout_s))), daemon=True)
-    proc.start()
-    child.close()
+
+    request = json.dumps({"code": code, "kind": kind, "data": data, "mem_mb": mem_mb,
+                          "cpu_s": max(1, int(timeout_s))}, default=str).encode()
+    proc = await asyncio.create_subprocess_exec(
+        sys.executable, "-E", "-s", "-m", "security.sandbox_runner",
+        stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE,
+        cwd=str(ROOT), env=_child_env())
     try:
-        if not parent.poll(timeout_s):
-            proc.kill()
-            return SandboxResult(ok=False, error=f"Timed out after {timeout_s:.0f}s",
-                                 duration_ms=int((time.monotonic() - started) * 1000))
-        msg = parent.recv()
-    except EOFError:
-        msg = {"ok": False, "error": "Sandbox process exited without a result (memory or CPU limit)"}
-    finally:
-        proc.join(timeout=1)
-        if proc.is_alive():
-            proc.kill()
+        stdout, stderr = await asyncio.wait_for(proc.communicate(request), timeout=timeout_s)
+    except TimeoutError:
+        proc.kill()
+        await proc.wait()
+        return SandboxResult(ok=False, error=f"Timed out after {timeout_s:.0f}s",
+                             duration_ms=int((time.monotonic() - started) * 1000))
+    elapsed = int((time.monotonic() - started) * 1000)
+    try:
+        msg = json.loads(stdout.decode() or "{}")
+        if "ok" not in msg:
+            raise ValueError("empty response")
+    except ValueError:
+        tail = stderr.decode(errors="replace").strip().splitlines()[-1:] or ["no output"]
+        msg = {"ok": False, "error": f"Sandbox process failed (memory or CPU limit?): {tail[0][:200]}"}
     return SandboxResult(ok=msg["ok"], result=msg.get("result"), stdout=msg.get("stdout", ""),
-                         emitted=msg.get("emitted"), error=msg.get("error"),
-                         duration_ms=int((time.monotonic() - started) * 1000))
-
-
-async def run(code: str, kind: str, data: dict, timeout_s: float = 10.0, mem_mb: int = 512) -> SandboxResult:
-    return await asyncio.to_thread(_run_blocking, code, kind, data, timeout_s, mem_mb)
+                         emitted=msg.get("emitted"), error=msg.get("error"), duration_ms=elapsed)
