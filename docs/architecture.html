@@ -189,19 +189,19 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
       <rect class="bx-acc" x="474" y="96" width="192" height="32" rx="5"/>
       <text class="t" x="570" y="117" text-anchor="middle">supervisor</text>
       <rect class="bx-in" x="474" y="136" width="192" height="32" rx="5"/>
-      <text class="t" x="570" y="157" text-anchor="middle">retrieval_agent</text>
+      <text class="t" x="570" y="157" text-anchor="middle">retrieve</text>
       <rect class="bx-in" x="474" y="176" width="192" height="32" rx="5"/>
-      <text class="t" x="570" y="197" text-anchor="middle">research_agent · RLM</text>
+      <text class="t" x="570" y="197" text-anchor="middle">research · RLM subgraph</text>
       <rect class="bx-in" x="474" y="216" width="192" height="32" rx="5"/>
-      <text class="t" x="570" y="237" text-anchor="middle">tools_agent</text>
+      <text class="t" x="570" y="237" text-anchor="middle">tools</text>
       <rect class="bx-in" x="474" y="256" width="192" height="32" rx="5"/>
-      <text class="t" x="570" y="277" text-anchor="middle">response_agent</text>
+      <text class="t" x="570" y="277" text-anchor="middle">respond</text>
       <rect class="bx-guard-solid" x="474" y="296" width="192" height="32" rx="5"/>
       <text class="t" x="570" y="317" text-anchor="middle">output_guard</text>
       <rect class="bx-in" x="474" y="336" width="192" height="32" rx="5"/>
       <text class="t" x="570" y="357" text-anchor="middle">memory_write</text>
       <rect class="bx-guard-solid" x="474" y="376" width="192" height="32" rx="5"/>
-      <text class="t" x="570" y="397" text-anchor="middle">hitl_approval</text>
+      <text class="t" x="570" y="397" text-anchor="middle">admin · interrupt()</text>
       <text class="ts" x="570" y="440" text-anchor="middle">state = messages, plan,</text>
       <text class="ts" x="570" y="456" text-anchor="middle">evidence, errors, budget</text>
 
@@ -255,7 +255,7 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 
       <rect class="bx" x="920" y="320" width="220" height="64" rx="8"/>
       <text class="tb" x="1030" y="344" text-anchor="middle">Python sandbox</text>
-      <text class="ts" x="1030" y="364" text-anchor="middle">subprocess · no net · 5 s</text>
+      <text class="ts" x="1030" y="364" text-anchor="middle">fresh interpreter · empty env</text>
 
       <rect class="bx" x="920" y="420" width="220" height="80" rx="8"/>
       <text class="tb" x="1030" y="444" text-anchor="middle">Memory</text>
@@ -298,7 +298,7 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
       <line class="e" x1="43" y1="253" x2="67" y2="253" marker-end="url(#a2)"/>
 
       <rect class="bx" x="70" y="230" width="132" height="46" rx="6"/>
-      <text class="t" x="136" y="250" text-anchor="middle">recall_memory</text>
+      <text class="t" x="136" y="250" text-anchor="middle">prepare</text>
       <text class="ts" x="136" y="266" text-anchor="middle">session + user</text>
       <line class="e" x1="202" y1="253" x2="237" y2="253" marker-end="url(#a2)"/>
 
@@ -317,24 +317,24 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 
       <!-- workers -->
       <rect class="bx" x="440" y="70" width="170" height="46" rx="6"/>
-      <text class="t" x="525" y="90" text-anchor="middle">retrieval_agent</text>
+      <text class="t" x="525" y="90" text-anchor="middle">retrieve</text>
       <text class="ts" x="525" y="106" text-anchor="middle">hybrid search + rerank</text>
 
       <rect class="bx-acc" x="440" y="160" width="170" height="46" rx="6"/>
-      <text class="t" x="525" y="180" text-anchor="middle">research_agent</text>
+      <text class="t" x="525" y="180" text-anchor="middle">research</text>
       <text class="ts" x="525" y="196" text-anchor="middle">RLM subgraph (§03)</text>
 
       <rect class="bx" x="440" y="300" width="170" height="46" rx="6"/>
-      <text class="t" x="525" y="320" text-anchor="middle">tools_agent</text>
+      <text class="t" x="525" y="320" text-anchor="middle">tools</text>
       <text class="ts" x="525" y="336" text-anchor="middle">MCP · python analysis</text>
 
       <rect class="bx" x="440" y="390" width="170" height="46" rx="6"/>
-      <text class="t" x="525" y="410" text-anchor="middle">admin_action</text>
+      <text class="t" x="525" y="410" text-anchor="middle">admin</text>
       <text class="ts" x="525" y="426" text-anchor="middle">reindex · audit log</text>
       <line class="e-guard" x1="610" y1="413" x2="647" y2="413" marker-end="url(#a2g)"/>
 
       <rect class="bx-guard" x="650" y="390" width="140" height="46" rx="6"/>
-      <text class="t" x="720" y="410" text-anchor="middle">hitl_approval</text>
+      <text class="t" x="720" y="410" text-anchor="middle">human approval</text>
       <text class="ts" x="720" y="426" text-anchor="middle">interrupt() · resume</text>
 
       <!-- return bus -->
@@ -351,7 +351,7 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 
       <!-- tail -->
       <rect class="bx-acc" x="880" y="230" width="130" height="46" rx="6"/>
-      <text class="t" x="945" y="250" text-anchor="middle">response_agent</text>
+      <text class="t" x="945" y="250" text-anchor="middle">respond</text>
       <text class="ts" x="945" y="266" text-anchor="middle">streams tokens</text>
       <line class="e" x1="945" y1="276" x2="945" y2="327" marker-end="url(#a2)"/>
 
@@ -436,7 +436,7 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 
       <rect class="bx-acc" x="870" y="140" width="140" height="80" rx="8"/>
       <text class="t" x="940" y="166" text-anchor="middle">reduce</text>
-      <text class="ts" x="940" y="186" text-anchor="middle">merge · dedupe</text>
+      <text class="ts" x="940" y="186" text-anchor="middle">cluster · dedupe</text>
       <text class="ts" x="940" y="202" text-anchor="middle">count causes</text>
       <line class="e" x1="1010" y1="180" x2="1037" y2="180" marker-end="url(#a3)"/>
 
@@ -445,14 +445,14 @@ ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
       <text class="ts" x="1090" y="192" text-anchor="middle">+ doc ids</text>
     </svg>
     </div>
-    <figcaption><strong>Context cost scales with the number of findings, not the number of documents.</strong> Batch analyzers run concurrently under an <code>asyncio.Semaphore(4)</code>, each returns a typed <code>Finding(cause, evidence_ids, date)</code>, and the reducer is plain Python, so the counts in the final summary are computed, not guessed by the model.</figcaption>
+    <figcaption><strong>Context cost scales with the number of findings, not the number of documents.</strong> Batch analyzers run concurrently under an <code>asyncio.Semaphore(4)</code>, each returns typed <code>Finding</code> records (doc id, date, cause category, summary, verbatim quote), and the reducer is plain Python, so the counts in the final summary are computed, not guessed by the model.</figcaption>
   </figure>
 
   <div class="two">
     <div class="panel">
       <h3>Example plan the model generates</h3>
       <pre><span class="cmt"># exposed names only: catalog, today, timedelta,</span>
-<span class="cmt"># bm25_rank, chunk, emit — no imports, no I/O</span>
+<span class="cmt"># grep, bm25_rank, chunk, emit — no imports, no I/O</span>
 hits = [d <span class="kw">for</span> d <span class="kw">in</span> catalog
         <span class="kw">if</span> d.document_type == <span class="str">"incident"</span>
         <span class="kw">and</span> d.created_date &gt;= today - timedelta(days=<span class="str">365</span>)
@@ -486,8 +486,8 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
       <h3>Index layout</h3>
       <ul class="tight">
         <li><strong>Namespaces</strong> by department: <code>payments</code>, <code>platform</code>, <code>security</code>, <code>hr</code>, <code>product</code>. Cross-department questions query namespaces in parallel with <code>asyncio.gather</code> and merge.</li>
-        <li><strong>Metadata</strong>: <code>doc_id</code>, <code>title</code>, <code>section</code>, <code>department</code>, <code>document_type</code>, <code>access_level</code>, <code>created_date</code> (epoch int for range filters), <code>tags</code>.</li>
-        <li><strong>Chunking</strong>: by markdown heading, ~500 tokens, 60 overlap, so a citation points at a named section.</li>
+        <li><strong>Metadata</strong>: <code>doc_id</code>, <code>title</code>, <code>section</code>, <code>department</code>, <code>document_type</code>, <code>access_level</code>, <code>created_date</code>, <code>created_ts</code> (epoch int for range filters), <code>tags</code>, <code>severity</code>, <code>services</code>.</li>
+        <li><strong>Chunking</strong>: one chunk per <code>##</code> section, so a citation points at a named section. Sections over 350 words split on paragraphs with one paragraph of overlap.</li>
       </ul>
     </div>
     <div class="panel">
@@ -495,7 +495,7 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
       <ul class="tight">
         <li>Supervisor extracts filters (type, date range, department) as a typed object.</li>
         <li>Gateway adds <code>access_level ∈ allowed(role)</code>; the model's filter can narrow this, never widen it.</li>
-        <li>Top 20 hybrid hits are reranked by a cross-encoder to the top 6.</li>
+        <li>Top 20 hybrid hits are reranked to the top 6 by Pinecone's hosted <code>bge-reranker-v2-m3</code> cross-encoder.</li>
         <li>Each passage carries a <code>[doc_id §section]</code> tag that the output guard checks against the answer's citations.</li>
       </ul>
     </div>
@@ -516,9 +516,9 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
         <tr><td><code>knowledge_search</code></td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
         <tr><td><code>research</code> (RLM)</td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
         <tr><td><code>python_analysis</code></td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
-        <tr><td><code>mcp.employee_directory</code> · <code>service_catalog</code> · <code>incident_records</code></td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
-        <tr><td><code>admin.reindex_documents</code></td><td class="c no">—</td><td class="c no">—</td><td class="c hitl">✓ + approval</td></tr>
-        <tr><td><code>admin.view_audit_log</code></td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
+        <tr><td><code>employee_directory</code> · <code>service_catalog</code> · <code>incident_records</code> (MCP)</td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td><code>admin_reindex_documents</code></td><td class="c no">—</td><td class="c no">—</td><td class="c hitl">✓ + approval</td></tr>
+        <tr><td><code>admin_view_audit_log</code></td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
         <tr><td>Document access levels</td><td class="c">public, internal</td><td class="c">+ confidential</td><td class="c">+ restricted</td></tr>
         <tr><td>Rate limit (bucket / refill)</td><td class="c">10 / 0.2 s⁻¹</td><td class="c">20 / 0.5 s⁻¹</td><td class="c">40 / 1 s⁻¹</td></tr>
       </tbody>
@@ -558,7 +558,7 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
     </div>
     <div class="panel">
       <h3>Long-term: the user</h3>
-      <p>A LangGraph Store namespaced as <code>("users", user_id)</code> keeps durable facts such as department, recurring topics and preferred answer format. Only <code>memory_write</code> writes to it, after the output guard passes, so a rejected or injected answer never becomes a memory. Recall is a filtered similarity search, scoped to that user.</p>
+      <p>A LangGraph Store namespaced as <code>("users", user_id)</code> keeps durable facts such as department, recurring topics and preferred answer format. Only <code>memory_write</code> writes to it, after the output guard passes, so a rejected or injected answer never becomes a memory. Recall lists only that user's namespace.</p>
     </div>
   </div>
 </section>
@@ -568,13 +568,13 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
   <div class="sec-num">08 · GRACEFUL DEGRADATION</div>
   <div class="prose">
     <h2>Every dependency has a planned failure mode</h2>
-    <p>Each case below can be triggered live through a <code>FAULTS=llm,pinecone,mcp</code> setting for the demo.</p>
+    <p>Each case below can be triggered live from the administrator sidebar, or at startup with <code>FAULTS=llm,pinecone,mcp</code>.</p>
   </div>
   <div class="tbl-wrap">
     <table>
       <thead><tr><th>Failure</th><th>Handling</th><th>User sees</th></tr></thead>
       <tbody>
-        <tr><td>LLM timeout or 5xx</td><td>Two retries with exponential backoff, then the fallback model.</td><td>Normal answer; panel shows the fallback.</td></tr>
+        <tr><td>LLM timeout or 5xx</td><td>Two retries with exponential backoff, then the fallback model if configured. Without one: default routing to a single search and an extractive answer.</td><td>Normal answer, or the top passages quoted with citations.</td></tr>
         <tr><td>Pinecone unavailable</td><td>Circuit opens after three failures; local BM25 over a cached chunk set.</td><td>Answer marked "keyword search only".</td></tr>
         <tr><td>MCP server down</td><td>Tool returns a typed <code>ToolError</code> into state; supervisor continues without it.</td><td>Answer names the missing source.</td></tr>
         <tr><td>Tool timeout</td><td><code>asyncio.wait_for</code> at 8 s; the task is cancelled and recorded in <code>state.errors</code>.</td><td>Partial answer with a note.</td></tr>
@@ -594,7 +594,7 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
       <ul class="tight">
         <li><strong>Large model</strong> (e.g. Claude Sonnet) for the supervisor and response agent: reliable tool calling and structured output matter most where routing and the final answer are decided.</li>
         <li><strong>Small model</strong> (e.g. Claude Haiku) for batch analyzers and guard classifiers: they run N times per question, so cost and latency multiply.</li>
-        <li><strong>Embeddings</strong>: a hosted 1,536-d text model; BM25 encoder fitted on the corpus for sparse vectors.</li>
+        <li><strong>Embeddings</strong>: Pinecone Inference <code>multilingual-e5-large</code> (1,024-d), so one vector-store key covers embeddings, search and reranking. BM25 sparse vectors are computed locally and double as the offline index.</li>
         <li><strong>Fallback</strong>: a second provider behind the same interface, so an outage changes cost, not availability.</li>
       </ul>
     </div>
@@ -604,8 +604,8 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
         <li>Hardcoded users with JWT (option A). Keycloak adds setup time without changing the authorization design.</li>
         <li>Corpus is synthetic: about 60 documents across six types, with planted recurring root causes so the RLM output can be verified.</li>
         <li>The RLM sandbox is internal to the research agent and available to all roles, because it only reads the user's already-filtered catalog. The user-facing <code>python_analysis</code> tool stays Analyst-only.</li>
-        <li>SQLite checkpointer for the POC; Postgres in Docker Compose. Same interface.</li>
-        <li>Subprocess sandbox with an AST allow-list is adequate for a POC; production would use gVisor or a managed sandbox.</li>
+        <li>SQLite holds checkpoints and the memory store, in Docker Compose too. Moving to Postgres is a constructor change.</li>
+        <li>The sandbox (AST allow-list, fresh interpreter with an empty environment, CPU, memory and time limits) is adequate for a POC; production would add gVisor or a managed sandbox.</li>
         <li>The custom graph is built on LangGraph directly rather than the <code>deepagents</code> package, to keep every node explicit and traceable.</li>
       </ul>
     </div>
@@ -616,16 +616,19 @@ emit(batches=chunk(ranked, size=<span class="str">8</span>),
 <section>
   <div class="sec-num">10 · REPOSITORY LAYOUT</div>
   <pre>bank-ai-assistant/
-├── api/            FastAPI app · auth.py · ratelimit.py · sse.py · errors.py
-├── graph/          state.py · build.py · nodes/ (supervisor, retrieval, research, tools, response, guards, memory)
-├── rlm/            catalog.py · planner.py · sandbox.py · batch.py · reduce.py
-├── retrieval/      ingest.py · encoders.py · pinecone_store.py · rerank.py · bm25_fallback.py
-├── tools/          gateway.py · registry.py (scopes) · knowledge.py · analysis.py · admin.py
-├── mcp_server/     server.py · data/ (employees, services, incidents)
-├── security/       injection.py · output_guard.py · brand_policy.py · pii.py
-├── ui/             streamlit_app.py · activity_panel.py
-├── data/corpus/    policies/ runbooks/ incidents/ architecture/ specs/ meetings/
-├── tests/          rbac, injection, citation guard, rate limit, fault injection
-└── docker-compose.yml · README.md · ARCHITECTURE.md</pre>
+├── api/          main.py (routes, auth, errors) · runner.py (SSE) · ratelimit.py · schemas.py
+├── core/         config · rbac (roles, scopes) · auth (JWT) · llm (retry, fallback, faults) · resilience · audit
+├── graph/        state.py · nodes.py · prompts.py · events.py · build.py
+├── rlm/          graph.py (plan → sandbox → Send fan-out → recursive split → reduce) · prompts · schemas
+├── retrieval/    chunking.py · bm25.py · filters.py (ACL) · store.py (Pinecone + local) · ingest.py
+├── security/     injection.py · output_guard.py · brand_policy.py · pii.py · sandbox*.py
+├── tools/        registry.py (schemas, implementations) · gateway.py · mcp_client.py
+├── mcp_server/   server.py (MCPServer) · data/ (employees, services, incidents)
+├── ui/           streamlit_app.py · activity.py
+├── scripts/      generate_corpus.py · run_evals.py
+├── data/         corpus/ (55 docs) · ground_truth.json
+├── evals/        questions.jsonl (19 role-tagged questions)
+├── tests/        68 tests with a scripted model; no API keys needed
+└── Dockerfile · docker-compose.yml · README.md</pre>
 </section>
 </div>

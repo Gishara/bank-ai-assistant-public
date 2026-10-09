@@ -1,0 +1,37 @@
+services:
+  mcp:
+    build: .
+    command: python -m mcp_server.server
+    environment:
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "8001"
+    ports: ["8001:8001"]
+
+  api:
+    build: .
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    env_file: .env
+    environment:
+      MCP_SERVER_URL: http://mcp:8001/mcp
+      STATE_DB: /app/data/state/assistant.sqlite
+    volumes:
+      - state:/app/data/state
+    ports: ["8000:8000"]
+    depends_on: [mcp]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      retries: 5
+
+  ui:
+    build: .
+    command: streamlit run ui/streamlit_app.py --server.port 8501 --server.address 0.0.0.0 --browser.gatherUsageStats false
+    environment:
+      API_URL: http://api:8000
+    ports: ["8501:8501"]
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  state:
