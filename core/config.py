@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     summarize_after_messages: int = 16
 
     # API
-    jwt_secret: str = "dev-secret-change-me"
+    jwt_secret: str = "dev-only-secret-change-me-in-any-shared-env"
     jwt_ttl_minutes: int = 480
     state_db: Path = ROOT / "data" / "state" / "assistant.sqlite"
     mcp_server_url: str = "http://localhost:8001/mcp"
