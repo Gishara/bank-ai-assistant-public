@@ -1,0 +1,631 @@
+<title>Bank AI Assistant Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: engineering blueprint — narrow reading column, full-width figures that scroll on phones */
+:root {
+  --bg: #f2f4f8;
+  --surface: #ffffff;
+  --fg: #131d36;
+  --muted: #56627c;
+  --line: #c6cede;
+  --accent: #1f45c4;
+  --accent-soft: #e5ebfb;
+  --guard: #a9560a;
+  --guard-soft: #fbeee0;
+  --code-bg: #e9edf5;
+  --display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1220; --surface: #141b2d; --fg: #e2e7f2; --muted: #93a0bb; --line: #2d3852;
+    --accent: #84a0ff; --accent-soft: #1a2546; --guard: #f0a24a; --guard-soft: #2b2113; --code-bg: #182036;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1220; --surface: #141b2d; --fg: #e2e7f2; --muted: #93a0bb; --line: #2d3852;
+  --accent: #84a0ff; --accent-soft: #1a2546; --guard: #f0a24a; --guard-soft: #2b2113; --code-bg: #182036;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; }
+.prose { max-width: 70ch; }
+header { display: grid; gap: 10px; padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font-family: var(--display); font-stretch: 80%; font-weight: 800; font-size: clamp(32px, 5vw, 52px); line-height: 1.02; margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h2 { font-family: var(--display); font-stretch: 85%; font-weight: 700; font-size: 26px; line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+h3 { font: 600 16px/1.3 var(--body); margin: 0 0 6px; }
+p { margin: 0 0 12px; }
+.lede { font-size: 17px; color: var(--muted); max-width: 70ch; margin: 0; }
+section { display: grid; gap: 14px; margin-bottom: 56px; }
+.sec-num { font: 500 12px var(--mono); color: var(--muted); letter-spacing: .06em; }
+code, .mono { font-family: var(--mono); font-size: .88em; }
+:not(pre) > code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.fig-scroll { overflow-x: auto; padding: 18px; }
+.fig-scroll svg { display: block; width: 100%; min-width: 980px; height: auto; }
+figcaption { border-top: 1px solid var(--line); padding: 12px 18px; color: var(--muted); font-size: 14px; }
+figcaption strong { color: var(--fg); font-weight: 600; }
+
+/* SVG vocabulary */
+.bx { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
+.bx-in { fill: var(--bg); stroke: var(--line); stroke-width: 1; }
+.bx-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.4; }
+.bx-guard { fill: var(--guard-soft); stroke: var(--guard); stroke-width: 1.4; stroke-dasharray: 6 4; }
+.bx-guard-solid { fill: var(--guard-soft); stroke: var(--guard); stroke-width: 1.2; }
+.t { fill: var(--fg); font: 600 13px var(--body); }
+.tb { fill: var(--fg); font: 700 15px var(--display); font-stretch: 85%; }
+.ts { fill: var(--muted); font: 400 11px var(--mono); }
+.tg { fill: var(--guard); font: 500 11px var(--mono); }
+.ta { fill: var(--accent); font: 500 11px var(--mono); }
+.col { fill: var(--muted); font: 500 10.5px var(--mono); letter-spacing: .1em; }
+.e { stroke: var(--fg); stroke-width: 1.4; fill: none; }
+.e-acc { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+.e-guard { stroke: var(--guard); stroke-width: 1.4; fill: none; }
+.e-dash { stroke: var(--muted); stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+.ah { fill: var(--fg); }
+.ah-acc { fill: var(--accent); }
+.ah-guard { fill: var(--guard); }
+.ah-muted { fill: var(--muted); }
+.dot { fill: var(--fg); }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+th { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td.c { text-align: center; font-family: var(--mono); }
+.yes { color: var(--accent); font-weight: 600; }
+.no { color: var(--muted); }
+.hitl { color: var(--guard); font-weight: 600; }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 860px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+pre { margin: 0; background: var(--code-bg); border-radius: 8px; padding: 14px 16px; overflow-x: auto; font: 12.5px/1.6 var(--mono); }
+.cmt { color: var(--muted); }
+.kw { color: var(--accent); }
+.str { color: var(--guard); }
+ul.tight { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font: 12px var(--mono); color: var(--muted); }
+.sw { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: -1px; margin-right: 6px; }
+.sw-acc { background: var(--accent-soft); border: 1.4px solid var(--accent); }
+.sw-guard { background: var(--guard-soft); border: 1.4px dashed var(--guard); }
+.sw-bx { background: var(--surface); border: 1.2px solid var(--line); }
+.formula { font: 500 15px var(--mono); background: var(--code-bg); padding: 10px 14px; border-radius: 8px; overflow-x: auto; }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">AI Lead technical assessment · architecture</div>
+  <h1>Bank AI Assistant Architecture</h1>
+  <p class="lede">An enterprise knowledge assistant for Commercial Bank staff. It answers questions over policies, runbooks, incident reports and specs. A LangGraph supervisor coordinates specialist agents, a recursive research agent handles corpus-wide questions, and every tool call passes through a gateway the model cannot bypass.</p>
+  <div class="legend">
+    <span><span class="sw sw-acc"></span>orchestration / streaming</span>
+    <span><span class="sw sw-guard"></span>security enforcement (code, not prompts)</span>
+    <span><span class="sw sw-bx"></span>component / backend</span>
+  </div>
+</header>
+
+<!-- ============ 1. SYSTEM ============ -->
+<section>
+  <div class="sec-num">01 · SYSTEM VIEW</div>
+  <div class="prose">
+    <h2>Five layers, one trust boundary</h2>
+    <p>The browser never talks to the agents directly. FastAPI authenticates, rate-limits and screens each request, then streams two kinds of events back over one SSE channel: answer tokens for the chat window and state events for the activity panel. The agents can reach backends only through the tool gateway, which takes the user's role and data-access filter from the authenticated request, never from model output.</p>
+  </div>
+  <figure>
+    <div class="fig-scroll">
+    <svg viewBox="0 0 1160 630" role="img" aria-label="System architecture: Streamlit UI calls FastAPI, which authenticates, rate-limits and screens the request before streaming a LangGraph run. LLM and memory are called directly by the graph; Pinecone, the MCP server and the Python sandbox are reached only through a tool gateway that enforces RBAC. LangSmith traces the API and the graph.">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a1acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a1g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-guard" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a1m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-muted" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <text class="col" x="20" y="22">CLIENT</text>
+      <text class="col" x="250" y="22">API LAYER</text>
+      <text class="col" x="460" y="22">ORCHESTRATION</text>
+      <text class="col" x="730" y="22">ENFORCEMENT</text>
+      <text class="col" x="920" y="22">BACKENDS</text>
+
+      <!-- Streamlit -->
+      <rect class="bx" x="20" y="150" width="140" height="240" rx="8"/>
+      <text class="tb" x="90" y="178" text-anchor="middle">Streamlit UI</text>
+      <rect class="bx-in" x="32" y="196" width="116" height="34" rx="5"/>
+      <text class="t" x="90" y="218" text-anchor="middle">Chat window</text>
+      <rect class="bx-in" x="32" y="240" width="116" height="34" rx="5"/>
+      <text class="t" x="90" y="262" text-anchor="middle">Activity panel</text>
+      <rect class="bx-in" x="32" y="284" width="116" height="34" rx="5"/>
+      <text class="t" x="90" y="306" text-anchor="middle">Login · role</text>
+      <text class="ts" x="90" y="346" text-anchor="middle">tokens → chat</text>
+      <text class="ts" x="90" y="362" text-anchor="middle">events → panel</text>
+
+      <!-- UI <-> API -->
+      <line class="e" x1="160" y1="232" x2="247" y2="232" marker-end="url(#a1)"/>
+      <text class="ts" x="205" y="224" text-anchor="middle">POST /chat</text>
+      <line class="e-acc" x1="250" y1="318" x2="163" y2="318" marker-end="url(#a1acc)"/>
+      <text class="ta" x="205" y="310" text-anchor="middle">SSE events</text>
+
+      <!-- FastAPI -->
+      <rect class="bx" x="250" y="90" width="160" height="360" rx="8"/>
+      <text class="tb" x="330" y="116" text-anchor="middle">FastAPI · async</text>
+      <rect class="bx-guard-solid" x="262" y="136" width="136" height="44" rx="5"/>
+      <text class="t" x="330" y="154" text-anchor="middle">Authenticate</text>
+      <text class="ts" x="330" y="170" text-anchor="middle">JWT → user, role</text>
+      <rect class="bx-guard-solid" x="262" y="188" width="136" height="44" rx="5"/>
+      <text class="t" x="330" y="206" text-anchor="middle">Rate limit</text>
+      <text class="ts" x="330" y="222" text-anchor="middle">token bucket/user</text>
+      <rect class="bx-guard-solid" x="262" y="240" width="136" height="44" rx="5"/>
+      <text class="t" x="330" y="258" text-anchor="middle">Input guard</text>
+      <text class="ts" x="330" y="274" text-anchor="middle">schema · injection</text>
+      <rect class="bx-acc" x="262" y="292" width="136" height="44" rx="5"/>
+      <text class="t" x="330" y="310" text-anchor="middle">Stream</text>
+      <text class="ts" x="330" y="326" text-anchor="middle">typed SSE events</text>
+      <rect class="bx-in" x="262" y="344" width="136" height="44" rx="5"/>
+      <text class="t" x="330" y="362" text-anchor="middle">Logging</text>
+      <text class="ts" x="330" y="378" text-anchor="middle">structlog · req_id</text>
+      <text class="ts" x="330" y="414" text-anchor="middle">exception handlers</text>
+      <text class="ts" x="330" y="430" text-anchor="middle">→ typed errors</text>
+
+      <!-- API <-> Graph -->
+      <line class="e" x1="410" y1="262" x2="457" y2="262" marker-end="url(#a1)"/>
+      <text class="ts" x="435" y="254" text-anchor="middle">run</text>
+      <line class="e-acc" x1="460" y1="314" x2="413" y2="314" marker-end="url(#a1acc)"/>
+      <text class="ta" x="435" y="306" text-anchor="middle">emit</text>
+
+      <!-- LangGraph -->
+      <rect class="bx" x="460" y="40" width="220" height="460" rx="8" style="stroke: var(--accent)"/>
+      <text class="tb" x="570" y="66" text-anchor="middle">LangGraph</text>
+      <text class="ts" x="570" y="83" text-anchor="middle">checkpointed per thread_id</text>
+      <rect class="bx-acc" x="474" y="96" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="117" text-anchor="middle">supervisor</text>
+      <rect class="bx-in" x="474" y="136" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="157" text-anchor="middle">retrieval_agent</text>
+      <rect class="bx-in" x="474" y="176" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="197" text-anchor="middle">research_agent · RLM</text>
+      <rect class="bx-in" x="474" y="216" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="237" text-anchor="middle">tools_agent</text>
+      <rect class="bx-in" x="474" y="256" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="277" text-anchor="middle">response_agent</text>
+      <rect class="bx-guard-solid" x="474" y="296" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="317" text-anchor="middle">output_guard</text>
+      <rect class="bx-in" x="474" y="336" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="357" text-anchor="middle">memory_write</text>
+      <rect class="bx-guard-solid" x="474" y="376" width="192" height="32" rx="5"/>
+      <text class="t" x="570" y="397" text-anchor="middle">hitl_approval</text>
+      <text class="ts" x="570" y="440" text-anchor="middle">state = messages, plan,</text>
+      <text class="ts" x="570" y="456" text-anchor="middle">evidence, errors, budget</text>
+
+      <!-- Graph -> LLM (direct) -->
+      <line class="e" x1="680" y1="75" x2="917" y2="75" marker-end="url(#a1)"/>
+      <text class="ts" x="800" y="67" text-anchor="middle">chat · structured output</text>
+
+      <!-- Graph -> gateway -->
+      <line class="e-guard" x1="680" y1="232" x2="727" y2="232" marker-end="url(#a1g)"/>
+      <text class="tg" x="705" y="224" text-anchor="middle">calls</text>
+
+      <!-- Gateway -->
+      <rect class="bx-guard" x="730" y="120" width="140" height="300" rx="8"/>
+      <text class="tb" x="800" y="146" text-anchor="middle">Tool gateway</text>
+      <text class="ts" x="800" y="172" text-anchor="middle">role ⊇ tool.scope</text>
+      <text class="ts" x="800" y="192" text-anchor="middle">pydantic params</text>
+      <text class="ts" x="800" y="212" text-anchor="middle">ACL filter injected</text>
+      <text class="ts" x="800" y="232" text-anchor="middle">timeout · retry</text>
+      <text class="ts" x="800" y="252" text-anchor="middle">circuit breaker</text>
+      <text class="ts" x="800" y="272" text-anchor="middle">output sanitizer</text>
+      <text class="tg" x="800" y="380" text-anchor="middle">model never sets</text>
+      <text class="tg" x="800" y="396" text-anchor="middle">role or filters</text>
+
+      <!-- Gateway -> backends -->
+      <line class="e-guard" x1="870" y1="182" x2="917" y2="182" marker-end="url(#a1g)"/>
+      <text class="tg" x="894" y="174" text-anchor="middle">query</text>
+      <line class="e-guard" x1="870" y1="272" x2="917" y2="272" marker-end="url(#a1g)"/>
+      <text class="tg" x="894" y="264" text-anchor="middle">mcp</text>
+      <line class="e-guard" x1="870" y1="352" x2="917" y2="352" marker-end="url(#a1g)"/>
+      <text class="tg" x="894" y="344" text-anchor="middle">exec</text>
+
+      <!-- Graph -> memory (direct) -->
+      <line class="e" x1="680" y1="460" x2="917" y2="460" marker-end="url(#a1)" marker-start="url(#a1)"/>
+      <text class="ts" x="800" y="452" text-anchor="middle">checkpoint · recall</text>
+
+      <!-- Backends -->
+      <rect class="bx" x="920" y="40" width="220" height="70" rx="8"/>
+      <text class="tb" x="1030" y="64" text-anchor="middle">LLM providers</text>
+      <text class="ts" x="1030" y="82" text-anchor="middle">large: plan · answer</text>
+      <text class="ts" x="1030" y="98" text-anchor="middle">small: batches · guards</text>
+
+      <rect class="bx" x="920" y="140" width="220" height="84" rx="8"/>
+      <text class="tb" x="1030" y="164" text-anchor="middle">Pinecone</text>
+      <text class="ts" x="1030" y="182" text-anchor="middle">dotproduct · dense+BM25</text>
+      <text class="ts" x="1030" y="198" text-anchor="middle">namespace per dept</text>
+      <text class="ts" x="1030" y="214" text-anchor="middle">metadata ACL filter</text>
+
+      <rect class="bx" x="920" y="240" width="220" height="64" rx="8"/>
+      <text class="tb" x="1030" y="264" text-anchor="middle">MCP server</text>
+      <text class="ts" x="1030" y="284" text-anchor="middle">staff · services · incidents</text>
+
+      <rect class="bx" x="920" y="320" width="220" height="64" rx="8"/>
+      <text class="tb" x="1030" y="344" text-anchor="middle">Python sandbox</text>
+      <text class="ts" x="1030" y="364" text-anchor="middle">subprocess · no net · 5 s</text>
+
+      <rect class="bx" x="920" y="420" width="220" height="80" rx="8"/>
+      <text class="tb" x="1030" y="444" text-anchor="middle">Memory</text>
+      <text class="ts" x="1030" y="464" text-anchor="middle">checkpointer: session</text>
+      <text class="ts" x="1030" y="482" text-anchor="middle">store: per-user facts</text>
+
+      <!-- LangSmith -->
+      <line class="e-dash" x1="330" y1="450" x2="330" y2="556" marker-end="url(#a1m)"/>
+      <line class="e-dash" x1="570" y1="500" x2="570" y2="556" marker-end="url(#a1m)"/>
+      <text class="ts" x="340" y="530">trace</text>
+      <text class="ts" x="580" y="530">trace</text>
+      <rect class="bx" x="20" y="560" width="1120" height="52" rx="8" style="stroke-dasharray: 6 4; stroke: var(--muted)"/>
+      <text class="tb" x="40" y="591">LangSmith</text>
+      <text class="ts" x="140" y="591">one trace per turn: node transitions · LLM calls · tool calls · retrievals · guard verdicts · user feedback score</text>
+    </svg>
+    </div>
+    <figcaption><strong>Only two edges leave the graph without passing the gateway:</strong> LLM calls and memory. Everything that touches company data (Pinecone, MCP, code execution) goes through one choke point, so RBAC, validation, timeouts and circuit breaking are written once.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 2. GRAPH ============ -->
+<section>
+  <div class="sec-num">02 · AGENT GRAPH</div>
+  <div class="prose">
+    <h2>Supervisor loop with a guarded exit</h2>
+    <p>The supervisor turns the question into a short plan and routes one step at a time. Workers write results into shared state through reducers and hand control back, so the supervisor can re-plan when a step fails or returns little. The loop is capped at four hops. The answer leaves the graph only after the output guard has checked every citation against evidence actually retrieved in this turn.</p>
+  </div>
+  <figure>
+    <div class="fig-scroll">
+    <svg viewBox="0 0 1160 520" role="img" aria-label="LangGraph flow: recall memory, then supervisor routes to retrieval, research, tools or admin workers. Admin actions pass a human approval interrupt. All worker results return to the supervisor through state reducers, capped at four hops. When the plan is complete, the response agent writes the answer, the output guard checks citations and can request one regeneration, then memory is written and the run ends.">
+      <defs>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a2acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a2g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-guard" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <!-- START -->
+      <circle class="dot" cx="34" cy="253" r="9"/>
+      <text class="ts" x="34" y="282" text-anchor="middle">START</text>
+      <line class="e" x1="43" y1="253" x2="67" y2="253" marker-end="url(#a2)"/>
+
+      <rect class="bx" x="70" y="230" width="132" height="46" rx="6"/>
+      <text class="t" x="136" y="250" text-anchor="middle">recall_memory</text>
+      <text class="ts" x="136" y="266" text-anchor="middle">session + user</text>
+      <line class="e" x1="202" y1="253" x2="237" y2="253" marker-end="url(#a2)"/>
+
+      <rect class="bx-acc" x="240" y="230" width="140" height="46" rx="6"/>
+      <text class="t" x="310" y="250" text-anchor="middle">supervisor</text>
+      <text class="ts" x="310" y="266" text-anchor="middle">intent · plan · route</text>
+
+      <!-- routing trunk -->
+      <line class="e-acc" x1="380" y1="253" x2="410" y2="253"/>
+      <line class="e-acc" x1="410" y1="93" x2="410" y2="413"/>
+      <line class="e-acc" x1="410" y1="93" x2="437" y2="93" marker-end="url(#a2acc)"/>
+      <line class="e-acc" x1="410" y1="183" x2="437" y2="183" marker-end="url(#a2acc)"/>
+      <line class="e-acc" x1="410" y1="323" x2="437" y2="323" marker-end="url(#a2acc)"/>
+      <line class="e-acc" x1="410" y1="413" x2="437" y2="413" marker-end="url(#a2acc)"/>
+      <text class="ta" x="396" y="226" text-anchor="middle">route</text>
+
+      <!-- workers -->
+      <rect class="bx" x="440" y="70" width="170" height="46" rx="6"/>
+      <text class="t" x="525" y="90" text-anchor="middle">retrieval_agent</text>
+      <text class="ts" x="525" y="106" text-anchor="middle">hybrid search + rerank</text>
+
+      <rect class="bx-acc" x="440" y="160" width="170" height="46" rx="6"/>
+      <text class="t" x="525" y="180" text-anchor="middle">research_agent</text>
+      <text class="ts" x="525" y="196" text-anchor="middle">RLM subgraph (§03)</text>
+
+      <rect class="bx" x="440" y="300" width="170" height="46" rx="6"/>
+      <text class="t" x="525" y="320" text-anchor="middle">tools_agent</text>
+      <text class="ts" x="525" y="336" text-anchor="middle">MCP · python analysis</text>
+
+      <rect class="bx" x="440" y="390" width="170" height="46" rx="6"/>
+      <text class="t" x="525" y="410" text-anchor="middle">admin_action</text>
+      <text class="ts" x="525" y="426" text-anchor="middle">reindex · audit log</text>
+      <line class="e-guard" x1="610" y1="413" x2="647" y2="413" marker-end="url(#a2g)"/>
+
+      <rect class="bx-guard" x="650" y="390" width="140" height="46" rx="6"/>
+      <text class="t" x="720" y="410" text-anchor="middle">hitl_approval</text>
+      <text class="ts" x="720" y="426" text-anchor="middle">interrupt() · resume</text>
+
+      <!-- return bus -->
+      <line class="e" x1="610" y1="93" x2="830" y2="93"/>
+      <line class="e" x1="610" y1="183" x2="830" y2="183"/>
+      <line class="e" x1="610" y1="323" x2="830" y2="323"/>
+      <line class="e" x1="790" y1="413" x2="830" y2="413"/>
+      <polyline class="e" points="830,93 830,490 310,490 310,280" marker-end="url(#a2)"/>
+      <text class="ts" x="570" y="482" text-anchor="middle">results → state reducers → re-plan (≤ 4 hops)</text>
+
+      <!-- plan complete -->
+      <polyline class="e-acc" points="310,230 310,30 945,30 945,227" marker-end="url(#a2acc)"/>
+      <text class="ta" x="628" y="22" text-anchor="middle">plan complete or budget spent</text>
+
+      <!-- tail -->
+      <rect class="bx-acc" x="880" y="230" width="130" height="46" rx="6"/>
+      <text class="t" x="945" y="250" text-anchor="middle">response_agent</text>
+      <text class="ts" x="945" y="266" text-anchor="middle">streams tokens</text>
+      <line class="e" x1="945" y1="276" x2="945" y2="327" marker-end="url(#a2)"/>
+
+      <rect class="bx-guard" x="880" y="330" width="130" height="46" rx="6"/>
+      <text class="t" x="945" y="350" text-anchor="middle">output_guard</text>
+      <text class="ts" x="945" y="366" text-anchor="middle">cites · brand · PII</text>
+      <polyline class="e-guard" points="1010,353 1046,353 1046,253 1013,253" marker-end="url(#a2g)"/>
+      <text class="tg" x="1054" y="298">regenerate</text>
+      <text class="tg" x="1054" y="314">max 1×</text>
+      <line class="e" x1="945" y1="376" x2="945" y2="427" marker-end="url(#a2)"/>
+      <text class="ts" x="953" y="406">pass</text>
+
+      <rect class="bx" x="880" y="430" width="130" height="46" rx="6"/>
+      <text class="t" x="945" y="450" text-anchor="middle">memory_write</text>
+      <text class="ts" x="945" y="466" text-anchor="middle">summary · facts</text>
+      <line class="e" x1="1010" y1="453" x2="1067" y2="453" marker-end="url(#a2)"/>
+      <circle cx="1080" cy="453" r="10" class="bx" style="stroke: var(--fg); stroke-width: 2"/>
+      <circle class="dot" cx="1080" cy="453" r="5"/>
+      <text class="ts" x="1080" y="482" text-anchor="middle">END</text>
+    </svg>
+    </div>
+    <figcaption><strong>Failure stays local.</strong> A worker that errors writes to <code>state.errors</code> instead of raising, so one bad tool can't take down the run (the "butterfly effect" bonus). The supervisor reads the errors, re-routes or proceeds with partial evidence, and the response says which source was unavailable. A second guard failure replaces the answer with a refusal that lists the verified evidence only.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 3. RLM ============ -->
+<section>
+  <div class="sec-num">03 · RECURSIVE LANGUAGE MODEL</div>
+  <div class="prose">
+    <h2>The research agent never reads the corpus</h2>
+    <p>For questions like <em>"summarize last year's payment outages and recurring root causes"</em>, putting documents into the prompt fails at scale. The research agent sees only a metadata catalog. It writes a small Python search plan, the sandbox runs it, and each batch of matching documents goes to its own sub-agent. A sub-agent whose batch is still too large splits it and recurses. The parent model only ever sees compact findings.</p>
+  </div>
+  <figure>
+    <div class="fig-scroll">
+    <svg viewBox="0 0 1160 370" role="img" aria-label="RLM pipeline: explore metadata catalog, LLM writes a Python plan, sandbox runs it to produce batches, Send fans out to parallel batch analyzers which may split and recurse up to depth two, then a reducer merges findings with citations.">
+      <defs>
+        <marker id="a3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a3acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+        <marker id="a3g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ah-guard" d="M0,0 L10,5 L0,10 z"/></marker>
+      </defs>
+
+      <rect class="bx" x="20" y="140" width="160" height="80" rx="8"/>
+      <text class="t" x="100" y="166" text-anchor="middle">explore catalog</text>
+      <text class="ts" x="100" y="186" text-anchor="middle">metadata only</text>
+      <text class="ts" x="100" y="202" text-anchor="middle">no document bodies</text>
+      <line class="e" x1="180" y1="180" x2="217" y2="180" marker-end="url(#a3)"/>
+
+      <rect class="bx-acc" x="220" y="140" width="160" height="80" rx="8"/>
+      <text class="t" x="300" y="166" text-anchor="middle">write plan</text>
+      <text class="ts" x="300" y="186" text-anchor="middle">LLM emits Python</text>
+      <text class="ts" x="300" y="202" text-anchor="middle">AST-checked</text>
+      <line class="e" x1="380" y1="180" x2="417" y2="180" marker-end="url(#a3)"/>
+
+      <rect class="bx-guard" x="420" y="140" width="160" height="80" rx="8"/>
+      <text class="t" x="500" y="166" text-anchor="middle">run plan</text>
+      <text class="ts" x="500" y="186" text-anchor="middle">sandbox, read-only</text>
+      <text class="ts" x="500" y="202" text-anchor="middle">→ ids + batches</text>
+
+      <!-- fan out -->
+      <polyline class="e-acc" points="580,180 610,180 610,70 637,70" marker-end="url(#a3acc)"/>
+      <line class="e-acc" x1="610" y1="180" x2="637" y2="180" marker-end="url(#a3acc)"/>
+      <polyline class="e-acc" points="610,180 610,280 637,280" marker-end="url(#a3acc)"/>
+      <text class="ta" x="608" y="132" text-anchor="end">Send() × N</text>
+
+      <rect class="bx" x="640" y="40" width="170" height="60" rx="6"/>
+      <text class="t" x="725" y="66" text-anchor="middle">batch_analyzer 1</text>
+      <text class="ts" x="725" y="84" text-anchor="middle">small model · 8 docs</text>
+      <rect class="bx" x="640" y="150" width="170" height="60" rx="6"/>
+      <text class="t" x="725" y="176" text-anchor="middle">batch_analyzer 2</text>
+      <text class="ts" x="725" y="194" text-anchor="middle">small model · 8 docs</text>
+      <rect class="bx" x="640" y="250" width="170" height="60" rx="6"/>
+      <text class="t" x="725" y="276" text-anchor="middle">batch_analyzer N</text>
+      <text class="ts" x="725" y="294" text-anchor="middle">oversized batch</text>
+      <polyline class="e-guard" points="700,310 700,336 760,336 760,313" marker-end="url(#a3g)"/>
+      <text class="tg" x="730" y="356" text-anchor="middle">split &amp; recurse · depth ≤ 2</text>
+
+      <!-- fan in -->
+      <polyline class="e" points="810,70 840,70 840,180" />
+      <polyline class="e" points="810,280 840,280 840,180" />
+      <line class="e" x1="810" y1="180" x2="867" y2="180" marker-end="url(#a3)"/>
+      <text class="ts" x="848" y="132">findings</text>
+
+      <rect class="bx-acc" x="870" y="140" width="140" height="80" rx="8"/>
+      <text class="t" x="940" y="166" text-anchor="middle">reduce</text>
+      <text class="ts" x="940" y="186" text-anchor="middle">merge · dedupe</text>
+      <text class="ts" x="940" y="202" text-anchor="middle">count causes</text>
+      <line class="e" x1="1010" y1="180" x2="1037" y2="180" marker-end="url(#a3)"/>
+
+      <rect class="bx" x="1040" y="140" width="100" height="80" rx="8"/>
+      <text class="t" x="1090" y="172" text-anchor="middle">findings</text>
+      <text class="ts" x="1090" y="192" text-anchor="middle">+ doc ids</text>
+    </svg>
+    </div>
+    <figcaption><strong>Context cost scales with the number of findings, not the number of documents.</strong> Batch analyzers run concurrently under an <code>asyncio.Semaphore(4)</code>, each returns a typed <code>Finding(cause, evidence_ids, date)</code>, and the reducer is plain Python, so the counts in the final summary are computed, not guessed by the model.</figcaption>
+  </figure>
+
+  <div class="two">
+    <div class="panel">
+      <h3>Example plan the model generates</h3>
+      <pre><span class="cmt"># exposed names only: catalog, today, timedelta,</span>
+<span class="cmt"># bm25_rank, chunk, emit — no imports, no I/O</span>
+hits = [d <span class="kw">for</span> d <span class="kw">in</span> catalog
+        <span class="kw">if</span> d.document_type == <span class="str">"incident"</span>
+        <span class="kw">and</span> d.created_date &gt;= today - timedelta(days=<span class="str">365</span>)
+        <span class="kw">and</span> {<span class="str">"payments"</span>, <span class="str">"cards"</span>} &amp; set(d.tags)]
+ranked = bm25_rank(hits, <span class="str">"payment failure root cause"</span>)
+emit(batches=chunk(ranked, size=<span class="str">8</span>),
+     task=<span class="str">"extract root causes with evidence"</span>)</pre>
+    </div>
+    <div class="panel">
+      <h3>Why this counts as RLM, not just map-reduce</h3>
+      <ul class="tight">
+        <li>The model chooses the decomposition by writing code over the collection, rather than following a fixed pipeline.</li>
+        <li>Sub-calls are themselves agents that can split and recurse, with depth and token budgets in state.</li>
+        <li>Only the catalog the user is entitled to is loaded into the sandbox, so the plan cannot select restricted documents.</li>
+        <li>The plan, each batch and each finding appear as separate spans in LangSmith and as steps in the activity panel.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. RETRIEVAL ============ -->
+<section>
+  <div class="sec-num">04 · RETRIEVAL</div>
+  <div class="prose">
+    <h2>Hybrid search in one Pinecone index</h2>
+    <p>Each chunk is stored with a dense embedding and a BM25 sparse vector in a <code>dotproduct</code> index. The query scales both sides by α before searching, so a single query returns the weighted combination of both scores.</p>
+  </div>
+  <div class="formula">score = α · dense(q, d) + (1 − α) · bm25(q, d)        α = 0.6 by default, 0.3 for ID-like queries ("INC-2041")</div>
+  <div class="two">
+    <div class="panel">
+      <h3>Index layout</h3>
+      <ul class="tight">
+        <li><strong>Namespaces</strong> by department: <code>payments</code>, <code>platform</code>, <code>security</code>, <code>hr</code>, <code>product</code>. Cross-department questions query namespaces in parallel with <code>asyncio.gather</code> and merge.</li>
+        <li><strong>Metadata</strong>: <code>doc_id</code>, <code>title</code>, <code>section</code>, <code>department</code>, <code>document_type</code>, <code>access_level</code>, <code>created_date</code> (epoch int for range filters), <code>tags</code>.</li>
+        <li><strong>Chunking</strong>: by markdown heading, ~500 tokens, 60 overlap, so a citation points at a named section.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Query path</h3>
+      <ul class="tight">
+        <li>Supervisor extracts filters (type, date range, department) as a typed object.</li>
+        <li>Gateway adds <code>access_level ∈ allowed(role)</code>; the model's filter can narrow this, never widen it.</li>
+        <li>Top 20 hybrid hits are reranked by a cross-encoder to the top 6.</li>
+        <li>Each passage carries a <code>[doc_id §section]</code> tag that the output guard checks against the answer's citations.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5. RBAC ============ -->
+<section>
+  <div class="sec-num">05 · ACCESS CONTROL</div>
+  <div class="prose">
+    <h2>Roles decide which tools the model can see</h2>
+    <p>Tools are filtered by role before they are bound to the model, so a Viewer's model never sees an admin tool in its schema. The gateway checks the role again at execution time in case a tool name is injected or hallucinated. Document access is a second axis, enforced as a Pinecone metadata filter.</p>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Tool / data</th><th>Viewer</th><th>Analyst</th><th>Administrator</th></tr></thead>
+      <tbody>
+        <tr><td><code>knowledge_search</code></td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td><code>research</code> (RLM)</td><td class="c yes">✓</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td><code>python_analysis</code></td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td><code>mcp.employee_directory</code> · <code>service_catalog</code> · <code>incident_records</code></td><td class="c no">—</td><td class="c yes">✓</td><td class="c yes">✓</td></tr>
+        <tr><td><code>admin.reindex_documents</code></td><td class="c no">—</td><td class="c no">—</td><td class="c hitl">✓ + approval</td></tr>
+        <tr><td><code>admin.view_audit_log</code></td><td class="c no">—</td><td class="c no">—</td><td class="c yes">✓</td></tr>
+        <tr><td>Document access levels</td><td class="c">public, internal</td><td class="c">+ confidential</td><td class="c">+ restricted</td></tr>
+        <tr><td>Rate limit (bucket / refill)</td><td class="c">10 / 0.2 s⁻¹</td><td class="c">20 / 0.5 s⁻¹</td><td class="c">40 / 1 s⁻¹</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 6. SECURITY ============ -->
+<section>
+  <div class="sec-num">06 · SECURITY &amp; GUARDRAILS</div>
+  <div class="prose">
+    <h2>Defense in layers, strongest controls in code</h2>
+    <p>Prompt-level instructions reduce attacks; they don't stop them. Each threat below has at least one control that holds even if the model is fully manipulated.</p>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Threat</th><th>Control</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>Instruction override in the user message</td><td>Pattern and classifier scan (small model, JSON verdict); suspicious input is refused and logged. The system prompt is kept separate from user text.</td><td>Input guard</td></tr>
+        <tr><td>Indirect injection inside a retrieved document</td><td>Passages are wrapped in <code>&lt;document&gt;</code> delimiters and labeled as data. Imperative content aimed at the assistant is flagged by the same scan and stripped before it reaches the model.</td><td>Gateway output sanitizer</td></tr>
+        <tr><td>Data exfiltration (restricted docs, other users' memory, system prompt)</td><td>ACL filter injected server-side, memory namespaced by user id, system prompt contents blocked from output.</td><td>Gateway · store · output guard</td></tr>
+        <tr><td>Tool abuse (admin tool, arbitrary code)</td><td>Role-filtered tool binding, execution-time re-check, pydantic parameter schemas, AST allow-list and subprocess sandbox for Python, human approval for admin writes.</td><td>Gateway · HITL</td></tr>
+        <tr><td>Hallucinated citations</td><td>Every <code>[doc_id §section]</code> in the answer must exist in this turn's evidence; otherwise regenerate once, then refuse.</td><td>Output guard</td></tr>
+        <tr><td>Brand and compliance risk</td><td>Professional tone, no investment or credit advice, no statements about competitors, PII masking on account and NIC numbers, standard disclaimer for policy answers.</td><td>Response prompt + output guard</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 7. MEMORY ============ -->
+<section>
+  <div class="sec-num">07 · MEMORY</div>
+  <div class="two">
+    <div class="panel">
+      <h3>Short-term: the session</h3>
+      <p>A LangGraph checkpointer keyed by <code>thread_id</code> stores full graph state after every node, so a follow-up like "what about the card ones?" resolves against the previous plan and evidence. After eight turns, older messages are folded into a running summary to keep the prompt bounded. The checkpoint is also what lets a HITL interrupt resume minutes later.</p>
+    </div>
+    <div class="panel">
+      <h3>Long-term: the user</h3>
+      <p>A LangGraph Store namespaced as <code>("users", user_id)</code> keeps durable facts such as department, recurring topics and preferred answer format. Only <code>memory_write</code> writes to it, after the output guard passes, so a rejected or injected answer never becomes a memory. Recall is a filtered similarity search, scoped to that user.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8. FAILURES ============ -->
+<section>
+  <div class="sec-num">08 · GRACEFUL DEGRADATION</div>
+  <div class="prose">
+    <h2>Every dependency has a planned failure mode</h2>
+    <p>Each case below can be triggered live through a <code>FAULTS=llm,pinecone,mcp</code> setting for the demo.</p>
+  </div>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Failure</th><th>Handling</th><th>User sees</th></tr></thead>
+      <tbody>
+        <tr><td>LLM timeout or 5xx</td><td>Two retries with exponential backoff, then the fallback model.</td><td>Normal answer; panel shows the fallback.</td></tr>
+        <tr><td>Pinecone unavailable</td><td>Circuit opens after three failures; local BM25 over a cached chunk set.</td><td>Answer marked "keyword search only".</td></tr>
+        <tr><td>MCP server down</td><td>Tool returns a typed <code>ToolError</code> into state; supervisor continues without it.</td><td>Answer names the missing source.</td></tr>
+        <tr><td>Tool timeout</td><td><code>asyncio.wait_for</code> at 8 s; the task is cancelled and recorded in <code>state.errors</code>.</td><td>Partial answer with a note.</td></tr>
+        <tr><td>Invalid request</td><td>Pydantic validation in FastAPI.</td><td>422 with field-level messages.</td></tr>
+        <tr><td>Rate limit exceeded</td><td>Token bucket per user, configurable per role.</td><td>429 with <code>Retry-After</code>; UI shows a countdown.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ 9. DECISIONS ============ -->
+<section>
+  <div class="sec-num">09 · DECISIONS &amp; ASSUMPTIONS</div>
+  <div class="two">
+    <div class="panel">
+      <h3>Model selection</h3>
+      <ul class="tight">
+        <li><strong>Large model</strong> (e.g. Claude Sonnet) for the supervisor and response agent: reliable tool calling and structured output matter most where routing and the final answer are decided.</li>
+        <li><strong>Small model</strong> (e.g. Claude Haiku) for batch analyzers and guard classifiers: they run N times per question, so cost and latency multiply.</li>
+        <li><strong>Embeddings</strong>: a hosted 1,536-d text model; BM25 encoder fitted on the corpus for sparse vectors.</li>
+        <li><strong>Fallback</strong>: a second provider behind the same interface, so an outage changes cost, not availability.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Assumptions and trade-offs</h3>
+      <ul class="tight">
+        <li>Hardcoded users with JWT (option A). Keycloak adds setup time without changing the authorization design.</li>
+        <li>Corpus is synthetic: about 60 documents across six types, with planted recurring root causes so the RLM output can be verified.</li>
+        <li>The RLM sandbox is internal to the research agent and available to all roles, because it only reads the user's already-filtered catalog. The user-facing <code>python_analysis</code> tool stays Analyst-only.</li>
+        <li>SQLite checkpointer for the POC; Postgres in Docker Compose. Same interface.</li>
+        <li>Subprocess sandbox with an AST allow-list is adequate for a POC; production would use gVisor or a managed sandbox.</li>
+        <li>The custom graph is built on LangGraph directly rather than the <code>deepagents</code> package, to keep every node explicit and traceable.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10. REPO ============ -->
+<section>
+  <div class="sec-num">10 · REPOSITORY LAYOUT</div>
+  <pre>bank-ai-assistant/
+├── api/            FastAPI app · auth.py · ratelimit.py · sse.py · errors.py
+├── graph/          state.py · build.py · nodes/ (supervisor, retrieval, research, tools, response, guards, memory)
+├── rlm/            catalog.py · planner.py · sandbox.py · batch.py · reduce.py
+├── retrieval/      ingest.py · encoders.py · pinecone_store.py · rerank.py · bm25_fallback.py
+├── tools/          gateway.py · registry.py (scopes) · knowledge.py · analysis.py · admin.py
+├── mcp_server/     server.py · data/ (employees, services, incidents)
+├── security/       injection.py · output_guard.py · brand_policy.py · pii.py
+├── ui/             streamlit_app.py · activity_panel.py
+├── data/corpus/    policies/ runbooks/ incidents/ architecture/ specs/ meetings/
+├── tests/          rbac, injection, citation guard, rate limit, fault injection
+└── docker-compose.yml · README.md · ARCHITECTURE.md</pre>
+</section>
+</div>
