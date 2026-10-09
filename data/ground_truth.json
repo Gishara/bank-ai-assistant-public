@@ -1,0 +1,130 @@
+{
+  "question": "Summarize all outage reports related to payment failures during the last year and identify recurring root causes.",
+  "window": {
+    "start": "2025-10-09",
+    "end": "2026-10-09"
+  },
+  "expected_incident_ids": [
+    "INC-2025-1031",
+    "INC-2025-1108",
+    "INC-2025-1203",
+    "INC-2026-0119",
+    "INC-2026-0130",
+    "INC-2026-0214",
+    "INC-2026-0227",
+    "INC-2026-0306",
+    "INC-2026-0412",
+    "INC-2026-0523",
+    "INC-2026-0630",
+    "INC-2026-0719",
+    "INC-2026-0805",
+    "INC-2026-0828",
+    "INC-2026-0915"
+  ],
+  "root_causes": [
+    {
+      "cause": "hsm_pool_exhaustion",
+      "description": "HSM session/capacity exhaustion under peak card traffic",
+      "count": 4,
+      "recurring": true,
+      "incident_ids": [
+        "INC-2025-1108",
+        "INC-2026-0214",
+        "INC-2026-0412",
+        "INC-2026-0828"
+      ]
+    },
+    {
+      "cause": "certificate_lifecycle",
+      "description": "TLS certificate lifecycle failures on partner links (expiry, missing CA)",
+      "count": 3,
+      "recurring": true,
+      "incident_ids": [
+        "INC-2025-1203",
+        "INC-2026-0306",
+        "INC-2026-0719"
+      ]
+    },
+    {
+      "cause": "eod_batch_lock_contention",
+      "description": "End-of-day settlement batch overrunning and holding ledger locks",
+      "count": 3,
+      "recurring": true,
+      "incident_ids": [
+        "INC-2025-1031",
+        "INC-2026-0130",
+        "INC-2026-0630"
+      ]
+    },
+    {
+      "cause": "fraud_api_no_fallback",
+      "description": "Synchronous dependency on external fraud API without working fallback",
+      "count": 3,
+      "recurring": true,
+      "incident_ids": [
+        "INC-2026-0119",
+        "INC-2026-0523",
+        "INC-2026-0915"
+      ]
+    },
+    {
+      "cause": "change_management",
+      "description": "Unsafe configuration change (fee table)",
+      "count": 1,
+      "recurring": false,
+      "incident_ids": [
+        "INC-2026-0227"
+      ]
+    },
+    {
+      "cause": "dns_change",
+      "description": "DNS migration missing partner zone forwarder",
+      "count": 1,
+      "recurring": false,
+      "incident_ids": [
+        "INC-2026-0805"
+      ]
+    }
+  ],
+  "must_exclude": [
+    {
+      "doc_id": "INC-2024-1129",
+      "reason": "outside window (2024-11-29)"
+    },
+    {
+      "doc_id": "INC-2025-0815",
+      "reason": "outside window (2025-08-15)"
+    },
+    {
+      "doc_id": "INC-2025-1120",
+      "reason": "not a payment failure"
+    },
+    {
+      "doc_id": "INC-2026-0109",
+      "reason": "not a payment failure"
+    },
+    {
+      "doc_id": "INC-2026-0322",
+      "reason": "not a payment failure"
+    },
+    {
+      "doc_id": "INC-2026-0601",
+      "reason": "not a payment failure"
+    },
+    {
+      "doc_id": "INC-2026-0710",
+      "reason": "not a payment failure"
+    },
+    {
+      "doc_id": "INC-2026-0902",
+      "reason": "not a payment failure"
+    }
+  ],
+  "judgment_calls": [
+    {
+      "doc_id": "INC-2026-0227",
+      "note": "Customers were overcharged but no payment failed; accept either inclusion or exclusion if the answer states the choice."
+    }
+  ],
+  "cross_cutting_finding": "Most recurrences had an open action item from the earlier incident (see MTG-2026-0410 and MTG-2026-0709)."
+}

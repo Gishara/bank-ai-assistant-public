@@ -1,0 +1,160 @@
+[
+  {
+    "id": "card-auth-service",
+    "name": "Card Authorization Service",
+    "owner_team": "Card Platform",
+    "owner_id": "E1003",
+    "tier": 1,
+    "depends_on": [
+      "hsm-gateway",
+      "fraud-scoring-client",
+      "core-banking-adapter"
+    ],
+    "runbooks": [
+      "RB-PAY-001",
+      "RB-RSK-001"
+    ],
+    "description": "Authorizes debit and credit card transactions from POS, e-commerce and ATM channels."
+  },
+  {
+    "id": "hsm-gateway",
+    "name": "HSM Gateway",
+    "owner_team": "Cryptography Services",
+    "owner_id": "E1008",
+    "tier": 1,
+    "depends_on": [],
+    "runbooks": [
+      "RB-PAY-001"
+    ],
+    "description": "Brokers PIN verification and cryptogram validation requests to the hardware security modules."
+  },
+  {
+    "id": "payment-switch-connector",
+    "name": "National Payment Switch Connector",
+    "owner_team": "Switch Integration",
+    "owner_id": "E1004",
+    "tier": 1,
+    "depends_on": [
+      "core-banking-adapter"
+    ],
+    "runbooks": [
+      "RB-SEC-002"
+    ],
+    "description": "Sends and receives interbank instant transfers through the national payment switch."
+  },
+  {
+    "id": "eod-settlement-batch",
+    "name": "End-of-Day Settlement Batch",
+    "owner_team": "Payments Engineering",
+    "owner_id": "E1001",
+    "tier": 1,
+    "depends_on": [
+      "ledger-db"
+    ],
+    "runbooks": [
+      "RB-PAY-003"
+    ],
+    "description": "Nightly batch that posts card and transfer settlements to the general ledger."
+  },
+  {
+    "id": "fraud-scoring-client",
+    "name": "Fraud Scoring Client",
+    "owner_team": "Fraud Analytics",
+    "owner_id": "E1006",
+    "tier": 1,
+    "depends_on": [],
+    "runbooks": [
+      "RB-RSK-001"
+    ],
+    "description": "Calls the external VeriScore fraud API and applies the Bank's rule overlays."
+  },
+  {
+    "id": "core-banking-adapter",
+    "name": "Core Banking Adapter",
+    "owner_team": "Core Integration",
+    "owner_id": "E1012",
+    "tier": 1,
+    "depends_on": [
+      "ledger-db"
+    ],
+    "runbooks": [
+      "RB-PLT-004"
+    ],
+    "description": "Translates channel requests into core banking ledger operations."
+  },
+  {
+    "id": "ledger-db",
+    "name": "Ledger Database Cluster",
+    "owner_team": "Data Platform",
+    "owner_id": "E1005",
+    "tier": 1,
+    "depends_on": [],
+    "runbooks": [
+      "RB-PLT-004"
+    ],
+    "description": "PostgreSQL primary with two synchronous replicas holding account balances and postings."
+  },
+  {
+    "id": "mobile-banking-api",
+    "name": "Mobile Banking API",
+    "owner_team": "Digital Channels",
+    "owner_id": "E1010",
+    "tier": 1,
+    "depends_on": [
+      "identity-service",
+      "core-banking-adapter",
+      "notification-service"
+    ],
+    "runbooks": [
+      "RB-DIG-001"
+    ],
+    "description": "Backend for the retail mobile banking app."
+  },
+  {
+    "id": "identity-service",
+    "name": "Identity Service",
+    "owner_team": "Information Security",
+    "owner_id": "E1008",
+    "tier": 1,
+    "depends_on": [],
+    "runbooks": [
+      "RB-DIG-001"
+    ],
+    "description": "Issues and validates customer session tokens and step-up authentication."
+  },
+  {
+    "id": "qr-payments-service",
+    "name": "QR Payments Service",
+    "owner_team": "Digital Payments",
+    "owner_id": "E1009",
+    "tier": 2,
+    "depends_on": [
+      "payment-switch-connector",
+      "core-banking-adapter"
+    ],
+    "runbooks": [],
+    "description": "Merchant-presented QR payments for retail customers."
+  },
+  {
+    "id": "merchant-settlement-portal",
+    "name": "Merchant Settlement Portal",
+    "owner_team": "Digital Payments",
+    "owner_id": "E1009",
+    "tier": 2,
+    "depends_on": [
+      "ledger-db"
+    ],
+    "runbooks": [],
+    "description": "Web portal where merchants view settlements and download statements."
+  },
+  {
+    "id": "notification-service",
+    "name": "Notification Service",
+    "owner_team": "Site Reliability",
+    "owner_id": "E1014",
+    "tier": 3,
+    "depends_on": [],
+    "runbooks": [],
+    "description": "Sends SMS and push notifications, including one-time passwords."
+  }
+]

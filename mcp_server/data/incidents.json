@@ -1,0 +1,389 @@
+[
+  {
+    "incident_id": "INC-2024-1129",
+    "title": "Card authorization failures during Black Friday promotion",
+    "date": "2024-11-29",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "hsm-gateway"
+    ],
+    "duration_minutes": 38,
+    "failed_transactions": 9800,
+    "customers_affected": 6100,
+    "commander_id": "E1011",
+    "open_actions": 0,
+    "report_doc_id": "INC-2024-1129"
+  },
+  {
+    "incident_id": "INC-2025-0815",
+    "title": "Slow card authorizations after settlement overrun",
+    "date": "2025-08-15",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "eod-settlement-batch",
+      "ledger-db",
+      "card-auth-service"
+    ],
+    "duration_minutes": 25,
+    "failed_transactions": 870,
+    "customers_affected": 760,
+    "commander_id": "E1005",
+    "open_actions": 0,
+    "report_doc_id": "INC-2025-0815"
+  },
+  {
+    "incident_id": "INC-2025-1031",
+    "title": "Morning card and transfer failures after month-end settlement",
+    "date": "2025-10-31",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "eod-settlement-batch",
+      "ledger-db",
+      "card-auth-service",
+      "core-banking-adapter"
+    ],
+    "duration_minutes": 63,
+    "failed_transactions": 7300,
+    "customers_affected": 5900,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2025-1031"
+  },
+  {
+    "incident_id": "INC-2025-1108",
+    "title": "Intermittent card declines on Saturday evening",
+    "date": "2025-11-08",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "hsm-gateway"
+    ],
+    "duration_minutes": 47,
+    "failed_transactions": 18420,
+    "customers_affected": 11250,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2025-1108"
+  },
+  {
+    "incident_id": "INC-2025-1120",
+    "title": "Mobile app users logged out after signing key rotation",
+    "date": "2025-11-20",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "mobile-banking-api",
+      "identity-service"
+    ],
+    "duration_minutes": 70,
+    "failed_transactions": 0,
+    "customers_affected": 41000,
+    "commander_id": "E1010",
+    "open_actions": 0,
+    "report_doc_id": "INC-2025-1120"
+  },
+  {
+    "incident_id": "INC-2025-1203",
+    "title": "Interbank instant transfers failing",
+    "date": "2025-12-03",
+    "severity": "SEV1",
+    "status": "resolved",
+    "services": [
+      "payment-switch-connector"
+    ],
+    "duration_minutes": 95,
+    "failed_transactions": 6240,
+    "customers_affected": 5100,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2025-1203"
+  },
+  {
+    "incident_id": "INC-2026-0109",
+    "title": "Delayed SMS one-time passwords",
+    "date": "2026-01-09",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "notification-service"
+    ],
+    "duration_minutes": 90,
+    "failed_transactions": 0,
+    "customers_affected": 3200,
+    "commander_id": "E1014",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0109"
+  },
+  {
+    "incident_id": "INC-2026-0119",
+    "title": "Card authorization timeouts caused by slow fraud scoring",
+    "date": "2026-01-19",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "fraud-scoring-client"
+    ],
+    "duration_minutes": 36,
+    "failed_transactions": 6700,
+    "customers_affected": 5200,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0119"
+  },
+  {
+    "incident_id": "INC-2026-0130",
+    "title": "Settlement batch overrun blocks early transactions",
+    "date": "2026-01-30",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "eod-settlement-batch",
+      "ledger-db",
+      "card-auth-service"
+    ],
+    "duration_minutes": 48,
+    "failed_transactions": 5100,
+    "customers_affected": 4300,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0130"
+  },
+  {
+    "incident_id": "INC-2026-0214",
+    "title": "Card payment slowdowns and declines on Valentine's Day",
+    "date": "2026-02-14",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "hsm-gateway"
+    ],
+    "duration_minutes": 32,
+    "failed_transactions": 11900,
+    "customers_affected": 8030,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0214"
+  },
+  {
+    "incident_id": "INC-2026-0227",
+    "title": "Incorrect fees charged on QR payments",
+    "date": "2026-02-27",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "qr-payments-service"
+    ],
+    "duration_minutes": 140,
+    "failed_transactions": 0,
+    "customers_affected": 2300,
+    "commander_id": "E1009",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0227"
+  },
+  {
+    "incident_id": "INC-2026-0306",
+    "title": "QR payments rejected by acquiring partner",
+    "date": "2026-03-06",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "qr-payments-service",
+      "payment-switch-connector"
+    ],
+    "duration_minutes": 58,
+    "failed_transactions": 4120,
+    "customers_affected": 3700,
+    "commander_id": "E1009",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0306"
+  },
+  {
+    "incident_id": "INC-2026-0322",
+    "title": "Stale balances on merchant settlement portal",
+    "date": "2026-03-22",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "merchant-settlement-portal",
+      "ledger-db"
+    ],
+    "duration_minutes": 225,
+    "failed_transactions": 0,
+    "customers_affected": 420,
+    "commander_id": "E1005",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0322"
+  },
+  {
+    "incident_id": "INC-2026-0412",
+    "title": "Major card outage on Sinhala and Tamil New Year eve",
+    "date": "2026-04-12",
+    "severity": "SEV1",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "hsm-gateway"
+    ],
+    "duration_minutes": 71,
+    "failed_transactions": 39600,
+    "customers_affected": 24800,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0412"
+  },
+  {
+    "incident_id": "INC-2026-0523",
+    "title": "Card payments down during fraud provider outage",
+    "date": "2026-05-23",
+    "severity": "SEV1",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "fraud-scoring-client"
+    ],
+    "duration_minutes": 52,
+    "failed_transactions": 21400,
+    "customers_affected": 16900,
+    "commander_id": "E1011",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0523"
+  },
+  {
+    "incident_id": "INC-2026-0601",
+    "title": "Phishing campaign impersonating the Bank",
+    "date": "2026-06-01",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "identity-service"
+    ],
+    "duration_minutes": 630,
+    "failed_transactions": 0,
+    "customers_affected": 63,
+    "commander_id": "E1007",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0601"
+  },
+  {
+    "incident_id": "INC-2026-0630",
+    "title": "Half-year close settlement causes payment outage",
+    "date": "2026-06-30",
+    "severity": "SEV1",
+    "status": "resolved",
+    "services": [
+      "eod-settlement-batch",
+      "ledger-db",
+      "card-auth-service",
+      "payment-switch-connector"
+    ],
+    "duration_minutes": 88,
+    "failed_transactions": 15200,
+    "customers_affected": 12100,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0630"
+  },
+  {
+    "incident_id": "INC-2026-0710",
+    "title": "Internal wiki unavailable",
+    "date": "2026-07-10",
+    "severity": "SEV4",
+    "status": "resolved",
+    "services": [],
+    "duration_minutes": 80,
+    "failed_transactions": 0,
+    "customers_affected": 0,
+    "commander_id": "E1014",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0710"
+  },
+  {
+    "incident_id": "INC-2026-0719",
+    "title": "Instant transfer failures after switch operator CA change",
+    "date": "2026-07-19",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "payment-switch-connector"
+    ],
+    "duration_minutes": 41,
+    "failed_transactions": 2890,
+    "customers_affected": 2400,
+    "commander_id": "E1011",
+    "open_actions": 1,
+    "report_doc_id": "INC-2026-0719"
+  },
+  {
+    "incident_id": "INC-2026-0805",
+    "title": "Payment switch connector unable to resolve partner host",
+    "date": "2026-08-05",
+    "severity": "SEV2",
+    "status": "resolved",
+    "services": [
+      "payment-switch-connector"
+    ],
+    "duration_minutes": 27,
+    "failed_transactions": 980,
+    "customers_affected": 870,
+    "commander_id": "E1011",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0805"
+  },
+  {
+    "incident_id": "INC-2026-0828",
+    "title": "Contactless payment declines at supermarket chain",
+    "date": "2026-08-28",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "hsm-gateway"
+    ],
+    "duration_minutes": 14,
+    "failed_transactions": 2310,
+    "customers_affected": 1980,
+    "commander_id": "E1003",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0828"
+  },
+  {
+    "incident_id": "INC-2026-0902",
+    "title": "Mobile app crash on Android 15 devices",
+    "date": "2026-09-02",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "mobile-banking-api"
+    ],
+    "duration_minutes": 390,
+    "failed_transactions": 0,
+    "customers_affected": 8800,
+    "commander_id": "E1010",
+    "open_actions": 0,
+    "report_doc_id": "INC-2026-0902"
+  },
+  {
+    "incident_id": "INC-2026-0915",
+    "title": "Elevated card latency during fraud API slowdown",
+    "date": "2026-09-15",
+    "severity": "SEV3",
+    "status": "resolved",
+    "services": [
+      "card-auth-service",
+      "fraud-scoring-client"
+    ],
+    "duration_minutes": 19,
+    "failed_transactions": 1450,
+    "customers_affected": 1200,
+    "commander_id": "E1003",
+    "open_actions": 2,
+    "report_doc_id": "INC-2026-0915"
+  }
+]

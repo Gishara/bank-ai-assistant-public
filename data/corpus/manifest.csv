@@ -1,0 +1,56 @@
+doc_id,title,document_type,department,access_level,created_date,author,path,words
+ARC-DIG-001,Mobile Banking Backend Architecture,architecture,product,internal,2025-10-02,E1010,data/corpus/architecture/ARC-DIG-001.md,128
+ARC-PAY-001,Card Payments Platform Architecture,architecture,payments,internal,2025-07-10,E1016,data/corpus/architecture/ARC-PAY-001.md,209
+ARC-PAY-002,National Payment Switch Integration,architecture,payments,internal,2025-05-22,E1004,data/corpus/architecture/ARC-PAY-002.md,172
+ARC-PAY-003,End-of-Day Settlement Architecture,architecture,payments,internal,2026-07-28,E1016,data/corpus/architecture/ARC-PAY-003.md,177
+ARC-RSK-001,Fraud Scoring Integration,architecture,risk,confidential,2026-06-25,E1016,data/corpus/architecture/ARC-RSK-001.md,151
+INC-2024-1129,Card authorization failures during Black Friday promotion,incident,payments,internal,2024-11-29,E1011,data/corpus/incidents/INC-2024-1129.md,339
+INC-2025-0815,Slow card authorizations after settlement overrun,incident,payments,internal,2025-08-15,E1005,data/corpus/incidents/INC-2025-0815.md,186
+INC-2025-1031,Morning card and transfer failures after month-end settlement,incident,payments,internal,2025-10-31,E1011,data/corpus/incidents/INC-2025-1031.md,324
+INC-2025-1108,Intermittent card declines on Saturday evening,incident,payments,internal,2025-11-08,E1011,data/corpus/incidents/INC-2025-1108.md,347
+INC-2025-1120,Mobile app users logged out after signing key rotation,incident,product,internal,2025-11-20,E1010,data/corpus/incidents/INC-2025-1120.md,210
+INC-2025-1203,Interbank instant transfers failing,incident,payments,internal,2025-12-03,E1011,data/corpus/incidents/INC-2025-1203.md,311
+INC-2026-0109,Delayed SMS one-time passwords,incident,platform,internal,2026-01-09,E1014,data/corpus/incidents/INC-2026-0109.md,187
+INC-2026-0119,Card authorization timeouts caused by slow fraud scoring,incident,payments,internal,2026-01-19,E1011,data/corpus/incidents/INC-2026-0119.md,283
+INC-2026-0130,Settlement batch overrun blocks early transactions,incident,payments,internal,2026-01-30,E1011,data/corpus/incidents/INC-2026-0130.md,283
+INC-2026-0214,Card payment slowdowns and declines on Valentine's Day,incident,payments,internal,2026-02-14,E1011,data/corpus/incidents/INC-2026-0214.md,268
+INC-2026-0227,Incorrect fees charged on QR payments,incident,payments,internal,2026-02-27,E1009,data/corpus/incidents/INC-2026-0227.md,244
+INC-2026-0306,QR payments rejected by acquiring partner,incident,payments,internal,2026-03-06,E1009,data/corpus/incidents/INC-2026-0306.md,268
+INC-2026-0322,Stale balances on merchant settlement portal,incident,platform,internal,2026-03-22,E1005,data/corpus/incidents/INC-2026-0322.md,183
+INC-2026-0412,Major card outage on Sinhala and Tamil New Year eve,incident,payments,internal,2026-04-12,E1011,data/corpus/incidents/INC-2026-0412.md,326
+INC-2026-0523,Card payments down during fraud provider outage,incident,payments,internal,2026-05-23,E1011,data/corpus/incidents/INC-2026-0523.md,284
+INC-2026-0601,Phishing campaign impersonating the Bank,incident,security,confidential,2026-06-01,E1007,data/corpus/incidents/INC-2026-0601.md,182
+INC-2026-0630,Half-year close settlement causes payment outage,incident,payments,internal,2026-06-30,E1011,data/corpus/incidents/INC-2026-0630.md,343
+INC-2026-0710,Internal wiki unavailable,incident,platform,internal,2026-07-10,E1014,data/corpus/incidents/INC-2026-0710.md,133
+INC-2026-0719,Instant transfer failures after switch operator CA change,incident,payments,internal,2026-07-19,E1011,data/corpus/incidents/INC-2026-0719.md,273
+INC-2026-0805,Payment switch connector unable to resolve partner host,incident,payments,internal,2026-08-05,E1011,data/corpus/incidents/INC-2026-0805.md,213
+INC-2026-0828,Contactless payment declines at supermarket chain,incident,payments,internal,2026-08-28,E1003,data/corpus/incidents/INC-2026-0828.md,245
+INC-2026-0902,Mobile app crash on Android 15 devices,incident,product,internal,2026-09-02,E1010,data/corpus/incidents/INC-2026-0902.md,175
+INC-2026-0915,Elevated card latency during fraud API slowdown,incident,payments,internal,2026-09-15,E1003,data/corpus/incidents/INC-2026-0915.md,255
+MTG-2026-0115,Payments Reliability Review: Q4 2025,meeting_notes,payments,internal,2026-01-15,E1001,data/corpus/meetings/MTG-2026-0115.md,122
+MTG-2026-0225,Architecture Review Board: Fraud Scoring Resilience,meeting_notes,platform,internal,2026-02-25,E1016,data/corpus/meetings/MTG-2026-0225.md,83
+MTG-2026-0410,Payments Reliability Review: Q1 2026,meeting_notes,payments,internal,2026-04-10,E1001,data/corpus/meetings/MTG-2026-0410.md,108
+MTG-2026-0603,Post-Incident Review: INC-2026-0523,meeting_notes,payments,internal,2026-06-03,E1011,data/corpus/meetings/MTG-2026-0603.md,84
+MTG-2026-0709,Payments Reliability Review: Q2 2026,meeting_notes,payments,internal,2026-07-09,E1001,data/corpus/meetings/MTG-2026-0709.md,87
+MTG-2026-0818,Digital Channels Weekly Sync,meeting_notes,product,internal,2026-08-18,E1010,data/corpus/meetings/MTG-2026-0818.md,119
+POL-AI-001,Acceptable Use of Generative AI Assistants,policy,security,public,2026-05-20,E1007,data/corpus/policies/POL-AI-001.md,148
+POL-HR-002,Flexible and Remote Work Policy,policy,hr,public,2025-01-15,E1017,data/corpus/policies/POL-HR-002.md,85
+POL-OPS-001,Incident Management Policy,policy,platform,internal,2025-09-01,E1011,data/corpus/policies/POL-OPS-001.md,210
+POL-OPS-002,Change Management Policy,policy,platform,internal,2025-09-01,E1016,data/corpus/policies/POL-OPS-002.md,128
+POL-RSK-004,Fraud Monitoring Thresholds,policy,risk,confidential,2026-02-28,E1006,data/corpus/policies/POL-RSK-004.md,140
+POL-SEC-001,Information Security Policy,policy,security,internal,2025-06-01,E1007,data/corpus/policies/POL-SEC-001.md,196
+POL-SEC-002,Access Control Policy,policy,security,internal,2025-06-01,E1007,data/corpus/policies/POL-SEC-002.md,144
+POL-SEC-003,Data Classification and Handling Standard,policy,security,public,2025-03-15,E1007,data/corpus/policies/POL-SEC-003.md,157
+POL-SEC-009,Cryptographic Key Management and HSM Operations,policy,security,restricted,2026-01-10,E1008,data/corpus/policies/POL-SEC-009.md,144
+RB-DIG-001,Runbook: Mobile Login Failures,runbook,product,internal,2025-12-15,E1010,data/corpus/runbooks/RB-DIG-001.md,73
+RB-OPS-001,Incident Commander Checklist,runbook,platform,internal,2025-09-05,E1011,data/corpus/runbooks/RB-OPS-001.md,101
+RB-PAY-001,Runbook: HSM Session Saturation,runbook,payments,internal,2026-05-20,E1008,data/corpus/runbooks/RB-PAY-001.md,170
+RB-PAY-003,Runbook: Settlement Batch Overrun,runbook,payments,internal,2026-08-20,E1005,data/corpus/runbooks/RB-PAY-003.md,133
+RB-PLT-004,Runbook: Ledger Database Failover,runbook,platform,confidential,2026-03-02,E1005,data/corpus/runbooks/RB-PLT-004.md,104
+RB-RSK-001,Runbook: Fraud Scoring Degraded Mode,runbook,risk,internal,2026-06-10,E1006,data/corpus/runbooks/RB-RSK-001.md,118
+RB-SEC-002,Runbook: Partner TLS Certificate Failure,runbook,security,internal,2026-04-18,E1008,data/corpus/runbooks/RB-SEC-002.md,160
+SPEC-CRD-004,Card Tokenization for Mobile Wallets,product_spec,product,internal,2025-12-10,E1015,data/corpus/specs/SPEC-CRD-004.md,82
+SPEC-DIG-021,Biometric Login for Mobile App 5.0,product_spec,product,internal,2026-05-05,E1010,data/corpus/specs/SPEC-DIG-021.md,86
+SPEC-PAY-010,QR Instant Payments v2,product_spec,product,internal,2026-04-02,E1009,data/corpus/specs/SPEC-PAY-010.md,112
+SPEC-PAY-012,Merchant Settlement Dashboard,product_spec,product,internal,2026-01-20,E1009,data/corpus/specs/SPEC-PAY-012.md,63
+SPEC-PAY-015,Standing Orders v2,product_spec,product,internal,2026-08-12,E1009,data/corpus/specs/SPEC-PAY-015.md,65
