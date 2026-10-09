@@ -161,3 +161,13 @@ async def test_long_conversations_are_summarized(graph, fake_llm):
         values, _ = await run(graph, {"messages": [HumanMessage(f"message {i}")]}, config)
     assert values.get("summary")
     assert len(values["messages"]) <= 8
+
+
+async def test_llm_outage_falls_back_to_cited_passages(graph, fake_llm):
+    faults.set("llm", True)
+    values, events = await run(graph, {"messages": [HumanMessage("What should on-call do when HSM sessions are saturated?")]},
+                               cfg("U-100", "llm-down"))
+    assert values["guard"]["passed"]
+    assert values["answer"].startswith("The language model is unavailable")
+    assert "[RB-PAY-001 §" in values["answer"]
+    assert any(e["type"] == "degraded" and e.get("component") == "llm" for e in events)

@@ -20,6 +20,8 @@ from langchain_core.messages import AIMessage, AIMessageChunk
 from langchain_core.outputs import ChatGeneration, ChatGenerationChunk, ChatResult
 from langchain_core.runnables import RunnableLambda
 
+from core.resilience import check_fault
+
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from corpus.incidents import INCIDENTS  # noqa: E402
@@ -62,6 +64,7 @@ class FakeLLM:
         name = schema.__name__
 
         async def run(prompt):
+            check_fault("llm")
             text = _text(prompt)
             self.calls.append((name, text))
             if name in self.fail_structured:
@@ -118,6 +121,7 @@ class FakeLLM:
 
     # ------------------------------------------------------------------ chat
     def next_answer(self, text: str) -> str:
+        check_fault("llm")
         self.calls.append(("chat", text))
         answer = self.answers.pop(0) if self.answers else "I couldn't find that in the documents."
         return answer(text) if callable(answer) else answer

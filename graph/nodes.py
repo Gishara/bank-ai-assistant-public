@@ -201,7 +201,17 @@ async def supervisor(state: AgentState, config: RunnableConfig) -> dict:
         facts="\n".join(f"- {f}" for f in state.get("user_facts", [])) or "(nothing)",
         steps=steps, evidence=evidence_digest(state.get("evidence", [])), question=state["question"])
 
-    decision: RoutingDecision = await structured(RoutingDecision, "large").ainvoke(prompt)
+    degraded: list[str] = []
+    try:
+        decision: RoutingDecision = await structured(RoutingDecision, "large").ainvoke(prompt)
+    except Exception as exc:
+        # Model unavailable (after retries and any fallback model): search
+        # once, then answer from what was found.
+        log_event(log, "supervisor_model_failed", error=str(exc))
+        degraded.append("The language model was unavailable; routing used a default search.")
+        emit("degraded", component="llm", reason=f"Supervisor model unavailable ({type(exc).__name__})")
+        decision = RoutingDecision(intent="knowledge", next="retrieve" if hops == 0 else "respond",
+                                   reason="model unavailable: default to one search", search_query=state["question"])
     nxt = decision.next
     notices: list[str] = []
 
@@ -217,7 +227,7 @@ async def supervisor(state: AgentState, config: RunnableConfig) -> dict:
     emit("route", next=nxt, requested=decision.next, intent=decision.intent, reason=decision.reason,
          query=decision.search_query, hop=hops + 1)
     update: dict = {"next": nxt, "decision": decision.model_dump(mode="json"), "notices": notices,
-                    "hops": hops + (0 if nxt == "respond" else 1)}
+                    "hops": hops + (0 if nxt == "respond" else 1), "degraded": degraded}
     if hops == 0 and decision.plan:
         update["plan"] = decision.plan[:4]
         emit("plan", steps=decision.plan[:4])
@@ -427,9 +437,35 @@ async def respond(state: AgentState, config: RunnableConfig) -> dict:
         tools=_tools_block(state.get("tool_results", [])),
         evidence=_evidence_block(state.get("evidence", [])),
         feedback=feedback, question=state["question"])
-    ai = await chat("large", tags=["final_answer"]).ainvoke([SystemMessage(prompts.ANSWER_SYSTEM),
-                                                              HumanMessage(user_msg)])
-    return {"draft": text_of(ai)}
+    try:
+        ai = await chat("large", tags=["final_answer"]).ainvoke([SystemMessage(prompts.ANSWER_SYSTEM),
+                                                                  HumanMessage(user_msg)])
+        return {"draft": text_of(ai)}
+    except Exception as exc:
+        log_event(log, "respond_model_failed", error=str(exc))
+        emit("degraded", component="llm", reason=f"Answer model unavailable ({type(exc).__name__})")
+        return {"draft": extractive_answer(state), "degraded": ["The language model was unavailable; "
+                                                                "showing the most relevant passages instead."]}
+
+
+def extractive_answer(state: AgentState) -> str:
+    """Answer without a model: quote the best passages, each with its citation."""
+    docs = [e for e in state.get("evidence", []) if e["source"] == "search"]
+    if not docs:
+        return ("The language model is unavailable right now and I found no matching documents. "
+                "Please try again in a few minutes.")
+    seen, parts = set(), []
+    for e in sorted(docs, key=lambda e: -e["score"]):
+        if e["doc_id"] in seen:
+            continue
+        seen.add(e["doc_id"])
+        body = e["text"].split("\n\n", 1)[-1].strip().replace("\n", " ")
+        parts.append(f"- **{e['title']}**: {body[:280]}{'…' if len(body) > 280 else ''} "
+                     f"[{e['doc_id']} §{e['section']}]")
+        if len(parts) == 3:
+            break
+    return ("The language model is unavailable right now, so I can't write a full answer. "
+            "These are the most relevant passages I found:\n\n" + "\n".join(parts))
 
 
 async def output_guard(state: AgentState, config: RunnableConfig) -> dict:
