@@ -54,7 +54,7 @@ def _final_payload(values: dict, run_id: uuid.UUID) -> dict:
         "answer": values.get("answer", ""),
         "citations": sorted(cited),
         "sources": sources,
-        "degraded": values.get("degraded", []),
+        "degraded": list(dict.fromkeys(values.get("degraded", []))),
         "errors": values.get("errors", []),
         "guard": values.get("guard", {}),
         "plan": values.get("plan", []),

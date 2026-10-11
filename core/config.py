@@ -5,6 +5,7 @@ from __future__ import annotations
 from functools import lru_cache
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -64,4 +65,8 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
+    # Settings only reads the fields it declares. SDKs such as LangChain's
+    # Anthropic/OpenAI clients and LangSmith read their keys from the process
+    # environment, so export .env there too (real env vars take precedence).
+    load_dotenv(ROOT / ".env", override=False)
     return Settings()
