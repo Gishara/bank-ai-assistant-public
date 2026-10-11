@@ -30,7 +30,10 @@ S = TypeVar("S", bound=BaseModel)
 @lru_cache(maxsize=8)
 def _model(spec: str, streaming: bool = False) -> BaseChatModel:
     settings = get_settings()
-    return init_chat_model(spec, timeout=settings.llm_timeout_s, max_retries=0, streaming=streaming)
+    kwargs: dict = {}
+    if spec.startswith("anthropic:") and settings.anthropic_workspace_id:
+        kwargs["default_headers"] = {"anthropic-workspace-id": settings.anthropic_workspace_id}
+    return init_chat_model(spec, timeout=settings.llm_timeout_s, max_retries=0, streaming=streaming, **kwargs)
 
 
 def _guarded(runnable: Runnable) -> Runnable:

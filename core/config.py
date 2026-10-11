@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     llm_large: str = "anthropic:claude-sonnet-5-5"
     llm_small: str = "anthropic:claude-haiku-5-5"
     llm_fallback: str = ""
+    # Needed with identity-linked (personal) Anthropic keys that are not
+    # scoped to a single workspace; leave empty for workspace-scoped keys.
+    anthropic_workspace_id: str = ""
     llm_timeout_s: float = 60.0
     llm_max_retries: int = 2
 
