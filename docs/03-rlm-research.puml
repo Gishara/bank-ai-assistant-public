@@ -1,0 +1,74 @@
+@startuml 03-rlm-research
+title Recursive Research Agent (RLM) — "payment failures last year, recurring root causes"
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ArrowColor #3A4A6B
+  LifeLineBorderColor #8A94AC
+  ParticipantBorderColor #3A4A6B
+  ParticipantBackgroundColor #FFFFFF
+}
+
+participant "research node" as R
+participant "write_plan\n(large model)" as P
+participant "run_plan" as RP
+participant "Python sandbox\n(fresh interpreter)" as SB #FBEEE0
+participant "analyze_batch × N\n(small model, parallel)" as A
+participant "reduce" as RD
+
+R -> P : question + catalog statistics\n(metadata only, user's readable docs)
+activate P
+P --> R : SearchPlan(reasoning, code)
+deactivate P
+
+R -> RP : plan code
+activate RP
+RP -> SB : AST check, then exec with\ncatalog, grep, bm25_rank, chunk, emit
+activate SB
+SB --> RP : emit(batches, task)
+deactivate SB
+
+alt plan rejected, crashed or selected nothing
+  RP -> P : retry once with the error
+  ...second failure...
+  RP -> RP : fallback: keyword-ranked batches
+end
+RP --> R : 21 docs → batches [8, 8, 5]
+deactivate RP
+
+group LangGraph Send() fan-out (asyncio.Semaphore(4))
+  R -> A : Send(batch 1, depth 0)
+  R -> A : Send(batch 2, depth 0)
+  R -> A : Send(batch 3, depth 0)
+  activate A
+
+  alt batch > token limit and depth < 2
+    A -> A : Command(goto=[Send(half 1, depth+1),\nSend(half 2, depth+1)])
+    note right of A : recursive split
+  else fits in context
+    A -> A : read sanitized documents\nBatchFindings: one Finding per doc\n(relevant?, cause_category, summary,\nverbatim quote, earlier action open?)
+  end
+
+  alt sub-agent fails
+    A --> RD : note "N documents not analyzed"
+  else
+    A --> RD : findings (only ids that were in the batch)
+  end
+  deactivate A
+end
+
+activate RD
+RD -> RD : wait until every planned doc\nwas processed by a leaf batch
+RD -> P : cluster findings by shared mechanism\n(model groups, never counts)
+RD -> RD : count, sort, mark recurring,\ncount carried-over actions (Python)
+RD --> R : clusters · findings · excluded · notes
+deactivate RD
+
+note over R, RD
+  Result on the planted corpus: 15 relevant incidents, 6 excluded.
+  HSM capacity ×4 · settlement locks ×3 · certificates ×3 · fraud API ×3 · one-offs ×2
+end note
+@enduml

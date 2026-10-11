@@ -1,0 +1,114 @@
+@startuml 01-system-architecture
+title Bank AI Assistant — System Architecture
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam componentStyle rectangle
+skinparam ArrowColor #3A4A6B
+skinparam rectangle {
+  BorderColor #3A4A6B
+  RoundCorner 8
+}
+skinparam component {
+  BackgroundColor #FFFFFF
+  BorderColor #3A4A6B
+}
+skinparam database {
+  BackgroundColor #F2F4F8
+  BorderColor #3A4A6B
+}
+skinparam legendBackgroundColor #FFFFFF
+left to right direction
+skinparam nodesep 18
+skinparam ranksep 60
+
+actor "Bank employee\n(viewer / analyst / admin)" as User
+
+rectangle "Streamlit UI  :8501" as UI #EEF2FB {
+  component "Chat window" as Chat
+  component "Activity panel" as Panel
+  component "Approve / Reject\n(admin)" as Approve
+}
+
+rectangle "FastAPI  :8000  (async)" as API #FFFFFF {
+  component "Authenticate\nJWT → user, role" as Auth #FBEEE0
+  component "Rate limit\ntoken bucket per user" as Rate #FBEEE0
+  component "Input guard\nvalidate · injection scan" as InGuard #FBEEE0
+  component "SSE runner\ntokens + typed events" as SSE #E5EBFB
+  component "Exception handlers\n422 / 429 / 500 + request id" as Errors
+}
+
+rectangle "LangGraph agent graph\n(checkpointed per user:thread)" as Graph #E5EBFB {
+  component "prepare\nmemory recall · summary" as Prepare
+  component "supervisor\nroute · plan · hop budget" as Supervisor
+  component "retrieve" as Retrieve
+  component "research\nRLM subgraph" as Research
+  component "tools" as Tools
+  component "admin\ninterrupt() approval" as Admin #FBEEE0
+  component "respond\nstreams answer" as Respond
+  component "output_guard\ncitations · brand · PII" as OutGuard #FBEEE0
+  component "memory_write" as MemWrite
+}
+
+rectangle "Tool gateway  (security boundary)" as Gateway #FBEEE0 {
+  component "role ⊇ tool scope\n(re-checked at execution)" as Scope
+  component "ACL filter injected\nfrom authenticated role" as ACL
+  component "pydantic args · timeout\ncircuit breaker · audit" as Exec
+  component "output sanitizer\n(strips injected text)" as Sanitize
+  Sanitize -[hidden]right-> Exec
+  Exec -[hidden]right-> ACL
+  ACL -[hidden]right-> Scope
+}
+
+cloud "LLM provider\nlarge: route · plan · answer\nsmall: batches · memory" as LLM
+database "Pinecone\ndotproduct · dense + BM25\nnamespace per department\nrerank: bge-reranker-v2-m3" as Pinecone
+database "Local BM25 index\n(degraded mode)" as Local
+component "MCP server  :8001\nemployees · services · incidents" as MCP
+component "Python sandbox\nfresh interpreter · empty env\nCPU / memory / time limits" as Sandbox
+database "SQLite\ncheckpointer (short-term)\nstore (long-term, per user)" as SQLite
+cloud "LangSmith\ntraces · feedback" as LangSmith
+
+User --> UI
+Chat --> Auth : POST /chat
+Approve --> Auth : POST /chat/resume
+Auth --> Rate
+Rate --> InGuard
+InGuard --> SSE : run graph
+SSE --> Prepare
+SSE ..> Panel : SSE events
+SSE ..> Chat : SSE tokens
+
+Prepare --> Supervisor
+Supervisor --> Retrieve
+Supervisor --> Research
+Supervisor --> Tools
+Supervisor --> Admin
+Supervisor --> Respond
+Respond --> OutGuard
+OutGuard --> MemWrite
+
+Retrieve --> Gateway
+Research --> Gateway
+Tools --> Gateway
+Admin --> Gateway
+
+Gateway --> Pinecone : hybrid query
+Gateway --> Local : fallback
+Gateway --> MCP : streamable HTTP
+Gateway --> Sandbox : exec
+
+Supervisor --> LLM
+Research --> LLM
+Respond --> LLM
+Graph --> SQLite : checkpoint · recall
+Graph ..> LangSmith : traces
+
+legend right
+  |= Colour |= Meaning |
+  | <color:#E8B07A>████</color> | security enforcement in code |
+  | <color:#9DB0EE>████</color> | orchestration / streaming |
+  Only LLM calls and memory bypass the gateway.
+  Role and access filters never come from model output.
+endlegend
+@enduml

@@ -1,0 +1,80 @@
+@startuml 02-agent-graph
+title LangGraph Agent Graph — one turn
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam ArrowColor #3A4A6B
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #3A4A6B
+  DiamondBackgroundColor #E5EBFB
+}
+
+start
+:**prepare**
+reset per-turn state
+recall user facts (Store)
+summarize after 16 messages;
+
+repeat
+  :**supervisor**
+  structured routing decision
+  role check + repeat check in code;
+  if (next = retrieve?) then (yes)
+    :**retrieve**
+    knowledge_search via gateway
+    hybrid search + rerank;
+  elseif (next = research?) then (yes)
+    :**research**
+    RLM subgraph (see diagram 03);<<#E5EBFB>>
+  elseif (next = tools?) then (yes)
+    :**tools**
+    model sees only role-allowed tools
+    MCP lookups · python_analysis
+    max 4 tool rounds;
+  elseif (next = admin?) then (yes)
+    if (reindex documents?) then (yes)
+      :**interrupt()**
+      wait for human approval;<<#FBEEE0>>
+      if (approved?) then (yes)
+        :execute via gateway
+        (approved_by recorded);
+      else (no)
+        :record rejection;
+      endif
+    else (audit log)
+      :admin_view_audit_log;
+    endif
+  else (respond)
+  endif
+  note right
+    Worker exceptions are caught and
+    written to state.errors; the supervisor
+    re-plans or answers with what it has.
+  end note
+repeat while (next ≠ respond and hops < 4?) is (yes)
+-> no;
+
+repeat
+  :**respond**
+  stream answer with
+  [DOC-ID §Section] citations;
+  :**output_guard**
+  citations ⊆ this turn's evidence
+  brand rules · prompt canary · PII masking;<<#FBEEE0>>
+repeat while (failed on first attempt?) is (regenerate with issues)
+-> passed, or failed twice;
+
+if (passed?) then (yes)
+else (no)
+  :replace answer with
+  verified sources only;
+endif
+
+:**memory_write**
+append answer to thread
+store user-stated facts
+(only after a passing answer);
+stop
+@enduml

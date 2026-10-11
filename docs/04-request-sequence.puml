@@ -1,0 +1,71 @@
+@startuml 04-request-sequence
+title Request Lifecycle — analyst asks a question
+
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+skinparam sequenceMessageAlign left
+skinparam sequence {
+  ArrowColor #3A4A6B
+  LifeLineBorderColor #8A94AC
+  ParticipantBorderColor #3A4A6B
+  ParticipantBackgroundColor #FFFFFF
+}
+
+actor Analyst
+participant "Streamlit UI" as UI
+participant "FastAPI" as API
+participant "LangGraph" as G
+participant "Tool gateway" as GW #FBEEE0
+database "Pinecone" as PC
+participant "MCP server" as MCP
+participant "LLM" as LLM
+database "SQLite\n(checkpoint + store)" as DB
+
+Analyst -> UI : "Who owns the service that failed in\nINC-2026-0412, and are they on call?"
+UI -> API : POST /chat (Bearer JWT, thread_id)
+API -> API : verify JWT → user, role (from user store)\nrate limit · validate · injection scan
+API -> G : astream(messages, config{user_id, thread "U-200:t1"})
+activate G
+G -> DB : load thread state · recall user facts
+API --> UI : SSE input_guard, memory
+
+G -> LLM : supervisor: routing decision
+LLM --> G : next = retrieve, query = "INC-2026-0412"
+API --> UI : SSE route
+
+G -> GW : knowledge_search(query, filters)
+GW -> GW : role may use tool? args valid?\nACL: access_level ∈ {public, internal, confidential}
+GW -> PC : hybrid query (α = 0.3 for ids) per namespace
+PC --> GW : top 20 → rerank → top 6
+GW -> GW : strip injected instructions, audit
+GW --> G : passages with doc ids + sections
+API --> UI : SSE retrieval
+
+G -> LLM : supervisor
+LLM --> G : next = tools
+G -> LLM : tools agent (only analyst tools bound)
+LLM --> G : service_catalog("card-auth-service")
+G -> GW : execute(service_catalog)
+GW -> MCP : get_service (timeout, circuit breaker)
+MCP --> GW : owner Dilani Fernando, on call
+GW --> G : result
+API --> UI : SSE tool_call, tool_result
+
+G -> LLM : supervisor
+LLM --> G : next = respond
+G -> LLM : answer with evidence in <document> tags
+LLM --> G : streamed tokens
+API --> UI : SSE token, token, ...
+
+G -> G : output_guard: every [DOC §Section] and\n[tool:name] must come from this turn
+alt validation fails (first time)
+  G -> LLM : regenerate with the issues
+  API --> UI : SSE answer_reset, tokens
+end
+G -> DB : checkpoint · save user-stated facts
+deactivate G
+API --> UI : SSE final (answer, citations, sources, run_id)
+UI --> Analyst : answer + sources + thumbs feedback
+UI -> API : POST /feedback → LangSmith
+@enduml
